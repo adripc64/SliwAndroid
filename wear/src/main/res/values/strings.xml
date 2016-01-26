@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">SliwAndroid</string>
+
+    <string name="linkUser">Vincular usuario</string>
+    <string name="id">Id</string>
+    <string name="ok">Ok</string>
+    <string name="ready">Ya estoy</string>
+
+    <string name="configStartText">Pulsa OK para configurar\n(5 minutos)</string>
+    <string name="progressBarMsg">Espera sin moverte</string>
+
+    <string-array name="numbers">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+
+</resources>
