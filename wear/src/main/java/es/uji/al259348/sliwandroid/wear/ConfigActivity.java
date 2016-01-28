@@ -7,10 +7,15 @@ import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.view.View;
 
+import es.uji.al259348.sliwandroid.core.controller.ConfigController;
+import es.uji.al259348.sliwandroid.core.model.Config;
+
 public class ConfigActivity extends Activity implements
         ConfigStartFragment.OnFragmentInteractionListener,
         ConfigStepFragment.OnFragmentInteractionListener,
         ConfigProgressBarFragment.OnFragmentInteractionListener {
+
+    private ConfigController configController;
 
     private View fragmentContent;
 
@@ -18,6 +23,8 @@ public class ConfigActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
+
+        configController = new ConfigController();
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
