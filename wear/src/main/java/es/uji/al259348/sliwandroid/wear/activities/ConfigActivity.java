@@ -1,4 +1,4 @@
-package es.uji.al259348.sliwandroid.wear;
+package es.uji.al259348.sliwandroid.wear.activities;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -9,6 +9,10 @@ import android.view.View;
 
 import es.uji.al259348.sliwandroid.core.controller.ConfigController;
 import es.uji.al259348.sliwandroid.core.model.Config;
+import es.uji.al259348.sliwandroid.wear.R;
+import es.uji.al259348.sliwandroid.wear.fragments.ConfigProgressBarFragment;
+import es.uji.al259348.sliwandroid.wear.fragments.ConfigStartFragment;
+import es.uji.al259348.sliwandroid.wear.fragments.ConfigStepFragment;
 
 public class ConfigActivity extends Activity implements
         ConfigStartFragment.OnFragmentInteractionListener,
@@ -24,7 +28,7 @@ public class ConfigActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
 
-        configController = new ConfigController();
+        //configController = new ConfigController();
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {

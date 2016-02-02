@@ -1,4 +1,4 @@
-package es.uji.al259348.sliwandroid.wear;
+package es.uji.al259348.sliwandroid.wear.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import es.uji.al259348.sliwandroid.wear.R;
 
 /**
  * A simple {@link Fragment} subclass.

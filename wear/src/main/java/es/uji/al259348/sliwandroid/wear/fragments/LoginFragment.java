@@ -1,4 +1,4 @@
-package es.uji.al259348.sliwandroid.wear;
+package es.uji.al259348.sliwandroid.wear.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -8,21 +8,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+
+import es.uji.al259348.sliwandroid.wear.R;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment2.OnFragmentInteractionListener} interface
+ * {@link LoginFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link LoginFragment2#newInstance} factory method to
+ * Use the {@link LoginFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoginFragment2 extends Fragment {
+public class LoginFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public LoginFragment2() {
+    public LoginFragment() {
         // Required empty public constructor
     }
 
@@ -32,8 +33,8 @@ public class LoginFragment2 extends Fragment {
 
      * @return A new instance of fragment LoginFragment.
      */
-    public static LoginFragment2 newInstance() {
-        return new LoginFragment2();
+    public static LoginFragment newInstance() {
+        return new LoginFragment();
     }
 
     @Override
@@ -44,24 +45,16 @@ public class LoginFragment2 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_login2, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_login, container, false);
 
-        final Spinner sp1 = (Spinner) rootView.findViewById(R.id.spinner1);
-        final Spinner sp2 = (Spinner) rootView.findViewById(R.id.spinner2);
-        final Spinner sp3 = (Spinner) rootView.findViewById(R.id.spinner3);
-        final Spinner sp4 = (Spinner) rootView.findViewById(R.id.spinner4);
+        final EditText etId = (EditText) rootView.findViewById(R.id.etId);
         Button btnLogin = (Button) rootView.findViewById(R.id.btnLogin);
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onLogin(
-                            sp1.getSelectedItem().toString() +
-                            sp2.getSelectedItem().toString() +
-                            sp3.getSelectedItem().toString() +
-                            sp4.getSelectedItem().toString()
-                    );
+                    mListener.onLogin(etId.getText().toString());
                 }
             }
         });

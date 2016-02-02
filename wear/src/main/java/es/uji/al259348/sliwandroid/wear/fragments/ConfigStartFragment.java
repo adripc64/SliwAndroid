@@ -1,4 +1,4 @@
-package es.uji.al259348.sliwandroid.wear;
+package es.uji.al259348.sliwandroid.wear.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -7,52 +7,69 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
+
+import es.uji.al259348.sliwandroid.wear.R;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
+ * {@link ConfigStartFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link LoginFragment#newInstance} factory method to
+ * Use the {@link ConfigStartFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoginFragment extends Fragment {
+public class ConfigStartFragment extends Fragment {
+
+    private static final String ARG_MSG = "msg";
+
+    private String msg;
 
     private OnFragmentInteractionListener mListener;
 
-    public LoginFragment() {
+    public ConfigStartFragment() {
         // Required empty public constructor
     }
 
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-
-     * @return A new instance of fragment LoginFragment.
+     *
+     * @param msg Message.
+     * @return A new instance of fragment ConfigStartFragment.
      */
-    public static LoginFragment newInstance() {
-        return new LoginFragment();
+    public static ConfigStartFragment newInstance(String msg) {
+        ConfigStartFragment fragment = new ConfigStartFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_MSG, msg);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            msg = getArguments().getString(ARG_MSG);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_login, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_config_start, container, false);
 
-        final EditText etId = (EditText) rootView.findViewById(R.id.etId);
-        Button btnLogin = (Button) rootView.findViewById(R.id.btnLogin);
+        if (!msg.isEmpty()) {
+            TextView tvMsg = (TextView) rootView.findViewById(R.id.tvMsg);
+            tvMsg.setText(msg);
+        }
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        Button btnOk = (Button) rootView.findViewById(R.id.btnOk);
+        btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onLogin(etId.getText().toString());
+                    mListener.onConfigStart();
                 }
             }
         });
@@ -88,6 +105,6 @@ public class LoginFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onLogin(String id);
+        void onConfigStart();
     }
 }
