@@ -38,6 +38,7 @@ public class MQServiceImpl implements MQService, MqttCallback {
 
     @Override
     public void request(final String topic, final String msg, final ResponseListener responseListener) {
+        Log.d("THREAD", "MQTT request | " + Thread.currentThread().getName());
         IMqttToken token;
         if (!mqttClient.isConnected()) {
             try {
@@ -45,12 +46,13 @@ public class MQServiceImpl implements MQService, MqttCallback {
                 token.setActionCallback(new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken iMqttToken) {
+                        Log.d("THREAD", "MQTT onConnect | " + Thread.currentThread().getName());
                         request(topic, msg, responseListener);
                     }
 
                     @Override
                     public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-
+                        Log.d("THREAD", "MQTT onConnectFailure | " + Thread.currentThread().getName());
                     }
                 });
             } catch (MqttException e) {
@@ -69,6 +71,7 @@ public class MQServiceImpl implements MQService, MqttCallback {
 
     @Override
     public void connectionLost(Throwable throwable) {
+        Log.d("THREAD", "MQTT connectionLost | " + Thread.currentThread().getName());
         try {
             mqttClient.connect(mqttConnectOptions);
         } catch (MqttException e) {
@@ -78,6 +81,7 @@ public class MQServiceImpl implements MQService, MqttCallback {
 
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+        Log.d("THREAD", "MQTT messageARrived | " + Thread.currentThread().getName());
         ResponseListener responseListener = responseListenerMap.get(topic);
         if (responseListener != null) {
             mqttClient.unsubscribe(topic + "/response");
@@ -88,6 +92,6 @@ public class MQServiceImpl implements MQService, MqttCallback {
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
+        Log.d("THREAD", "MQTT deliveryComplete | " + Thread.currentThread().getName());
     }
 }

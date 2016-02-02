@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 22
@@ -16,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     packagingOptions {
         exclude 'META-INF/NOTICE' // will not include NOTICE file
         exclude 'META-INF/LICENSE' // will not include LICENSE file
@@ -28,4 +33,5 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
     compile files('libs/org.eclipse.paho.android.service-1.0.2.jar')
     compile files('libs/org.eclipse.paho.client.mqttv3-1.0.2.jar')
+    compile 'io.reactivex:rxandroid:1.1.0'
 }
