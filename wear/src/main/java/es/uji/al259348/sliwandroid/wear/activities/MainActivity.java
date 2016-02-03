@@ -10,24 +10,32 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
 import es.uji.al259348.sliwandroid.core.controller.MainController;
 import es.uji.al259348.sliwandroid.core.controller.MainControllerImpl;
+import es.uji.al259348.sliwandroid.core.model.Config;
+import es.uji.al259348.sliwandroid.core.model.Location;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.view.MainView;
 import es.uji.al259348.sliwandroid.wear.R;
-import es.uji.al259348.sliwandroid.wear.fragments.LoginFragment;
-import es.uji.al259348.sliwandroid.wear.fragments.LoginFragment2;
+import es.uji.al259348.sliwandroid.wear.fragments.ConfirmFragment;
+import es.uji.al259348.sliwandroid.wear.fragments.LoadingFragment;
 import es.uji.al259348.sliwandroid.wear.fragments.MainFragment;
 
 public class MainActivity extends Activity implements
         MainView,
         MainFragment.OnFragmentInteractionListener,
-        LoginFragment.OnFragmentInteractionListener,
-        LoginFragment2.OnFragmentInteractionListener {
+        ConfirmFragment.OnFragmentInteractionListener {
 
     private MainController controller;
     private View fragmentContent;
-    private boolean secondLoginShown = false;
+
+    private User userLinked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +51,7 @@ public class MainActivity extends Activity implements
                 fragmentContent = stub.findViewById(R.id.fragmentContent);
 
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.add(fragmentContent.getId(), LoginFragment.newInstance());
+                transaction.replace(fragmentContent.getId(), ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
                 transaction.commit();
             }
         });
@@ -58,31 +66,18 @@ public class MainActivity extends Activity implements
             transaction.replace(fragmentContent.getId(), MainFragment.newInstance());
             transaction.commit();
 
+            Config config = null;
+            try {
+                config = (new ObjectMapper()).readValue(data.getStringExtra("config"), Config.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.d("CONFIG", "Config finished!!: " + config);
+
             Toast.makeText(MainActivity.this, "Configuración terminada.", Toast.LENGTH_SHORT).show();
         } else
             Toast.makeText(MainActivity.this, "Configuración cancelada.", Toast.LENGTH_SHORT).show();
 
-    }
-
-    @Override
-    public void onLogin(String id) {
-        if (!secondLoginShown) {
-            Log.d("THREAD", "onLogin | " + Thread.currentThread().getName());
-            controller.retrieveUserLinked();
-
-
-//            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//            transaction.replace(fragmentContent.getId(), LoginFragment2.newInstance());
-//            transaction.commit();
-//            secondLoginShown = true;
-        } else if (id.equals("0000")) {
-            Toast toast = Toast.makeText(MainActivity.this, "Usuario no válido.", Toast.LENGTH_SHORT);
-            //toast.getView().setBackgroundColor(Color.RED);
-            toast.show();
-        } else {
-            Intent i = new Intent(MainActivity.this, ConfigActivity.class);
-            startActivityForResult(i, 0);
-        }
     }
 
     @Override
@@ -92,6 +87,32 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onUserLinked(User user) {
+        userLinked = user;
+
         Toast.makeText(MainActivity.this, "Hola " + user.getName(), Toast.LENGTH_SHORT).show();
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(fragmentContent.getId(), ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
+        transaction.commit();
+
+    }
+
+    @Override
+    public void onConfirm() {
+        if (userLinked == null) {
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(fragmentContent.getId(), LoadingFragment.newInstance("Vinculando..."));
+            transaction.commit();
+            controller.retrieveUserLinked();
+        } else {
+            Intent i = new Intent(MainActivity.this, ConfigActivity.class);
+            try {
+                String jsonLocations = (new ObjectMapper()).writeValueAsString(userLinked.getLocations());
+                i.putExtra("locations", jsonLocations);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            startActivityForResult(i, 0);
+        }
     }
 }

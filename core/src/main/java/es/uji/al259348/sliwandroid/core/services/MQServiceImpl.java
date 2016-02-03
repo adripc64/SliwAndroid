@@ -27,6 +27,18 @@ public class MQServiceImpl implements MQService, MqttCallback {
         responseListenerMap = new HashMap<>();
     }
 
+    private void connect() throws MqttException {
+        if (!mqttClient.isConnected()) {
+            IMqttToken token = mqttClient.connect(mqttConnectOptions);
+        }
+    }
+
+    private void disconnect() {
+        if (mqttClient.isConnected()) {
+
+        }
+    }
+
     @Override
     public void publish(String topic, String msg) {
         try {
@@ -85,6 +97,7 @@ public class MQServiceImpl implements MQService, MqttCallback {
         ResponseListener responseListener = responseListenerMap.get(topic);
         if (responseListener != null) {
             mqttClient.unsubscribe(topic + "/response");
+            mqttClient.disconnect();
             responseListenerMap.remove(topic);
             responseListener.onResponse(new String(mqttMessage.getPayload()));
         }
