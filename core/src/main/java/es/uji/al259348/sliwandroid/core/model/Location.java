@@ -1,7 +1,5 @@
 package es.uji.al259348.sliwandroid.core.model;
 
-import java.io.Serializable;
-
 public class Location {
 
     private String name;

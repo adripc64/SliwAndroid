@@ -58,6 +58,12 @@ public class MainActivity extends Activity implements
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        controller.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -65,14 +71,6 @@ public class MainActivity extends Activity implements
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(fragmentContent.getId(), MainFragment.newInstance());
             transaction.commit();
-
-            Config config = null;
-            try {
-                config = (new ObjectMapper()).readValue(data.getStringExtra("config"), Config.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Log.d("CONFIG", "Config finished!!: " + config);
 
             Toast.makeText(MainActivity.this, "Configuración terminada.", Toast.LENGTH_SHORT).show();
         } else
@@ -107,8 +105,8 @@ public class MainActivity extends Activity implements
         } else {
             Intent i = new Intent(MainActivity.this, ConfigActivity.class);
             try {
-                String jsonLocations = (new ObjectMapper()).writeValueAsString(userLinked.getLocations());
-                i.putExtra("locations", jsonLocations);
+                String jsonUser = (new ObjectMapper()).writeValueAsString(userLinked);
+                i.putExtra("user", jsonUser);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

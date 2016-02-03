@@ -2,11 +2,13 @@ package es.uji.al259348.sliwandroid.core.services;
 
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Date;
 
+import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
 import rx.Subscriber;
@@ -34,6 +36,19 @@ public class UserServiceImpl implements UserService {
                     e.printStackTrace();
                 }
             });
+        });
+    }
+
+    @Override
+    public Observable<Void> configureUser(User user, Config config) {
+        return Observable.create(subscriber -> {
+            try {
+                String topic = "user/" + user.getId() + "/configure";
+                String payload = objectMapper.writeValueAsString(config);
+                mqService.publish(topic, payload).subscribe(subscriber);
+            } catch (JsonProcessingException e) {
+                subscriber.onError(e);
+            }
         });
     }
 

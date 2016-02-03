@@ -19,6 +19,8 @@ public class MainControllerImpl implements MainController {
     private static final String MQTT_PASS = "password";
 
     private MainView mainView;
+
+    private MqttAndroidClient mqttClient;
     private MQService mqService;
     private UserService userService;
 
@@ -30,10 +32,16 @@ public class MainControllerImpl implements MainController {
         connectOptions.setUserName(MQTT_USER);
         connectOptions.setPassword(MQTT_PASS.toCharArray());
 
-        MqttAndroidClient mqttClient = new MqttAndroidClient(mainView.getContext(), MQTT_URI, "publisher",  new MemoryPersistence());
+        this.mqttClient = new MqttAndroidClient(mainView.getContext(), MQTT_URI, "publisher",  new MemoryPersistence());
 
         this.mqService = new MQServiceImpl(mqttClient, connectOptions);
         this.userService = new UserServiceImpl(mqService);
+    }
+
+    @Override
+    public void onDestroy() {
+        mqttClient.unregisterResources();
+        mqttClient.close();
     }
 
     @Override

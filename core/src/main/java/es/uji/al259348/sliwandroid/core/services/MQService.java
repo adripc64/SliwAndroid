@@ -1,8 +1,10 @@
 package es.uji.al259348.sliwandroid.core.services;
 
+import rx.Observable;
+
 public interface MQService {
 
-    void publish(String topic, String msg);
+    Observable<Void> publish(String topic, String msg);
     void request(String topic, String msg, ResponseListener responseListener);
 
 }

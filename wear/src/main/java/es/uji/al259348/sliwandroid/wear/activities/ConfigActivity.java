@@ -21,6 +21,7 @@ import es.uji.al259348.sliwandroid.core.controller.ConfigController;
 import es.uji.al259348.sliwandroid.core.controller.ConfigControllerImpl;
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.Location;
+import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.view.ConfigView;
 import es.uji.al259348.sliwandroid.wear.R;
 import es.uji.al259348.sliwandroid.wear.fragments.ConfigProgressBarFragment;
@@ -33,7 +34,6 @@ public class ConfigActivity extends Activity implements
         ConfigStepFragment.OnFragmentInteractionListener {
 
     private ConfigController configController;
-    private Config config;
 
     private View fragmentContent;
     private ConfigProgressBarFragment configProgressBarFragment;
@@ -43,15 +43,12 @@ public class ConfigActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_config);
 
-        List<Location> locations = null;
         try {
-            locations = (new ObjectMapper()).readValue(getIntent().getStringExtra("locations"), new TypeReference<List<Location>>(){});
+            User user = (new ObjectMapper()).readValue(getIntent().getStringExtra("user"), User.class);
+            configController = new ConfigControllerImpl(this, user);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.config = new Config(locations);
-
-        configController = new ConfigControllerImpl(this, config);
 
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
@@ -61,6 +58,12 @@ public class ConfigActivity extends Activity implements
                 setFragment(ConfigStartFragment.newInstance(""));
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        configController.onDestroy();
     }
 
     private void setFragment(Fragment fragment) {
@@ -89,13 +92,7 @@ public class ConfigActivity extends Activity implements
     @Override
     public void onConfigFinished() {
         Intent i = getIntent();
-        try {
-            String jsonConfig = (new ObjectMapper()).writeValueAsString(config);
-            Log.d("CONFIG", jsonConfig);
-            i.putExtra("config", jsonConfig);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        i.putExtra("config", "");
         setResult(0, i);
         finish();
     }

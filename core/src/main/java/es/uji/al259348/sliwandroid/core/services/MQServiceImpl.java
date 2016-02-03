@@ -14,6 +14,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.HashMap;
 import java.util.Map;
 
+import rx.Observable;
+
 public class MQServiceImpl implements MQService, MqttCallback {
 
     private MqttAndroidClient mqttClient;
@@ -27,25 +29,83 @@ public class MQServiceImpl implements MQService, MqttCallback {
         responseListenerMap = new HashMap<>();
     }
 
-    private void connect() throws MqttException {
-        if (!mqttClient.isConnected()) {
-            IMqttToken token = mqttClient.connect(mqttConnectOptions);
-        }
+    private Observable<Void> connect() {
+        return Observable.create(subscriber -> {
+            if (mqttClient.isConnected()) {
+                subscriber.onCompleted();
+            } else {
+                try {
+                    IMqttToken token = mqttClient.connect(mqttConnectOptions);
+                    token.setActionCallback(new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken iMqttToken) {
+                            Log.d("THREAD", "MQTT Connected | " + Thread.currentThread().getName());
+                            subscriber.onCompleted();
+                        }
+
+                        @Override
+                        public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                            subscriber.onError(throwable);
+                        }
+                    });
+                } catch (MqttException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
     }
 
-    private void disconnect() {
-        if (mqttClient.isConnected()) {
+    private Observable<Void> disconnect() {
+        return Observable.create(subscriber -> {
+            if (!mqttClient.isConnected()) {
+                subscriber.onCompleted();
+            } else {
+                try {
+                    IMqttToken token = mqttClient.disconnect();
+                    token.setActionCallback(new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken iMqttToken) {
+                            Log.d("THREAD", "MQTT Disconnected | " + Thread.currentThread().getName());
+                            subscriber.onCompleted();
+                        }
 
-        }
+                        @Override
+                        public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                            subscriber.onError(throwable);
+                        }
+                    });
+                } catch (MqttException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
     }
 
     @Override
-    public void publish(String topic, String msg) {
-        try {
-            mqttClient.publish(topic, msg.getBytes(), 2, true);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+    public Observable<Void> publish(String topic, String msg) {
+        return Observable.concat(
+                connect(),
+                Observable.create(subscriber -> {
+                    try {
+                        IMqttDeliveryToken token = mqttClient.publish(topic, msg.getBytes(), 2, true);
+                        token.setActionCallback(new IMqttActionListener() {
+                            @Override
+                            public void onSuccess(IMqttToken iMqttToken) {
+                                Log.d("THREAD", "MQTT Published | " + Thread.currentThread().getName());
+                                subscriber.onCompleted();
+                            }
+
+                            @Override
+                            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                                subscriber.onError(throwable);
+                            }
+                        });
+                    } catch (MqttException e) {
+                        subscriber.onError(e);
+                    }
+                }),
+                disconnect()
+        );
     }
 
     @Override
