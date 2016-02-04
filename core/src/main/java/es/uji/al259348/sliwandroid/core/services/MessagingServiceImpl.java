@@ -11,17 +11,14 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import rx.Observable;
 
-public class MQServiceImpl implements MQService {
+public class MessagingServiceImpl implements MessagingService {
 
     private MqttAndroidClient mqttClient;
     private MqttConnectOptions mqttConnectOptions;
 
-    public MQServiceImpl(MqttAndroidClient mqttClient, MqttConnectOptions mqttConnectOptions) {
+    public MessagingServiceImpl(MqttAndroidClient mqttClient, MqttConnectOptions mqttConnectOptions) {
         this.mqttClient = mqttClient;
         this.mqttConnectOptions = mqttConnectOptions;
     }

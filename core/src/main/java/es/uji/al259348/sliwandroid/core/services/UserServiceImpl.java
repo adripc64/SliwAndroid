@@ -1,7 +1,5 @@
 package es.uji.al259348.sliwandroid.core.services;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,17 +9,15 @@ import java.util.Date;
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class UserServiceImpl implements UserService {
 
-    private MQService mqService;
+    private MessagingService messagingService;
     private ObjectMapper objectMapper;
 
-    public UserServiceImpl(MQService mqService) {
-        this.mqService = mqService;
+    public UserServiceImpl(MessagingService messagingService) {
+        this.messagingService = messagingService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -31,7 +27,7 @@ public class UserServiceImpl implements UserService {
             String topic = "user/linkedTo/" + deviceId;
             String msg = (new Date()).toString();
 
-            mqService.request(topic, msg)
+            messagingService.request(topic, msg)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(Schedulers.newThread())
                     .subscribe(s -> {
@@ -53,7 +49,7 @@ public class UserServiceImpl implements UserService {
                 String topic = "user/" + user.getId() + "/configure";
                 String msg = objectMapper.writeValueAsString(config);
 
-                mqService.publish(topic, msg)
+                messagingService.publish(topic, msg)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(Schedulers.newThread())
                         .subscribe(subscriber);

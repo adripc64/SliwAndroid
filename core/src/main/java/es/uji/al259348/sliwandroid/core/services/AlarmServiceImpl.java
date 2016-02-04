@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
+import es.uji.al259348.sliwandroid.core.R;
 import es.uji.al259348.sliwandroid.core.receivers.TakeSampleReceiver;
 
 public class AlarmServiceImpl implements AlarmService {
@@ -23,10 +24,13 @@ public class AlarmServiceImpl implements AlarmService {
         Intent intent = new Intent(context, TakeSampleReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        long triggerAtMillis = SystemClock.elapsedRealtime();
+        long intervalMillis = 1000 * context.getResources().getInteger(R.integer.intervalTakeSampleAlarmInSeconds);
+
         alarmManager.setRepeating(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime(),
-                60000,
+                triggerAtMillis,
+                intervalMillis,
                 pendingIntent);
     }
 

@@ -14,8 +14,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import java.util.Date;
 
 import es.uji.al259348.sliwandroid.core.R;
-import es.uji.al259348.sliwandroid.core.services.MQService;
-import es.uji.al259348.sliwandroid.core.services.MQServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.MessagingService;
+import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.WifiService;
 import es.uji.al259348.sliwandroid.core.services.WifiServiceImpl;
 
@@ -45,7 +45,7 @@ public class TakeSampleReceiver extends BroadcastReceiver {
 
         MqttAndroidClient mqttClient = new MqttAndroidClient(context.getApplicationContext(), brokerHost, clientId);
 
-        MQService mqService = new MQServiceImpl(mqttClient, connectOptions);
+        MessagingService messagingService = new MessagingServiceImpl(mqttClient, connectOptions);
         WifiService wifiService = new WifiServiceImpl(context.getApplicationContext());
 
         wifiService.performScan()
@@ -58,7 +58,7 @@ public class TakeSampleReceiver extends BroadcastReceiver {
                         String topic = "user/1/sample";
                         String msg = objectMapper.writeValueAsString(sample);
 
-                        mqService.publish(topic, msg)
+                        messagingService.publish(topic, msg)
                                 .doOnError(Throwable::printStackTrace)
                                 .doOnCompleted(() -> Log.d("TakeSampleReceiver", "Sample published!"))
                                 .subscribe();

@@ -12,8 +12,8 @@ import es.uji.al259348.sliwandroid.core.R;
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.model.WifiScanSample;
-import es.uji.al259348.sliwandroid.core.services.MQService;
-import es.uji.al259348.sliwandroid.core.services.MQServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.MessagingService;
+import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.UserService;
 import es.uji.al259348.sliwandroid.core.services.UserServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.WifiService;
@@ -30,7 +30,7 @@ public class ConfigControllerImpl implements ConfigController {
     private Config config;
 
     private MqttAndroidClient mqttClient;
-    private MQService mqService;
+    private MessagingService messagingService;
     private UserService userService;
     private WifiService wifiService;
 
@@ -56,8 +56,8 @@ public class ConfigControllerImpl implements ConfigController {
 
         this.mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
 
-        this.mqService = new MQServiceImpl(mqttClient, connectOptions);
-        this.userService = new UserServiceImpl(mqService);
+        this.messagingService = new MessagingServiceImpl(mqttClient, connectOptions);
+        this.userService = new UserServiceImpl(messagingService);
         this.wifiService = new WifiServiceImpl(configView.getContext());
     }
 

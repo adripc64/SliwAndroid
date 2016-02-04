@@ -6,4 +6,6 @@
     <string name="mqtt_broker_pass">password</string>
     <string name="mqtt_client_id">SliwAndroid</string>
 
+    <integer name="intervalTakeSampleAlarmInSeconds">60</integer> <!-- It shouldn't be lesser than 60 -->
+
 </resources>
