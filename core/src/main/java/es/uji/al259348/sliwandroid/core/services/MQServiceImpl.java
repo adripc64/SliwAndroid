@@ -16,22 +16,21 @@ import java.util.Map;
 
 import rx.Observable;
 
-public class MQServiceImpl implements MQService, MqttCallback {
+public class MQServiceImpl implements MQService {
 
     private MqttAndroidClient mqttClient;
     private MqttConnectOptions mqttConnectOptions;
-    private Map<String, ResponseListener> responseListenerMap;
 
     public MQServiceImpl(MqttAndroidClient mqttClient, MqttConnectOptions mqttConnectOptions) {
         this.mqttClient = mqttClient;
         this.mqttConnectOptions = mqttConnectOptions;
-        mqttClient.setCallback(this);
-        responseListenerMap = new HashMap<>();
     }
 
-    private Observable<Void> connect() {
+    private Observable<Void> connectAction() {
         return Observable.create(subscriber -> {
+            Log.d("MQTT", "Connecting... | " + Thread.currentThread().getName());
             if (mqttClient.isConnected()) {
+                Log.d("MQTT", "Already connected! | " + Thread.currentThread().getName());
                 subscriber.onCompleted();
             } else {
                 try {
@@ -39,25 +38,29 @@ public class MQServiceImpl implements MQService, MqttCallback {
                     token.setActionCallback(new IMqttActionListener() {
                         @Override
                         public void onSuccess(IMqttToken iMqttToken) {
-                            Log.d("THREAD", "MQTT Connected | " + Thread.currentThread().getName());
+                            Log.d("MQTT", "Connected successfully! | " + Thread.currentThread().getName());
                             subscriber.onCompleted();
                         }
 
                         @Override
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                            Log.d("MQTT", "Connection error! | " + Thread.currentThread().getName());
                             subscriber.onError(throwable);
                         }
                     });
                 } catch (MqttException e) {
+                    Log.d("MQTT", "Connection error! | " + Thread.currentThread().getName());
                     subscriber.onError(e);
                 }
             }
         });
     }
 
-    private Observable<Void> disconnect() {
+    private Observable<Void> disconnectAction() {
         return Observable.create(subscriber -> {
+            Log.d("MQTT", "Disconnecting... | " + Thread.currentThread().getName());
             if (!mqttClient.isConnected()) {
+                Log.d("MQTT", "Already disconnected! | " + Thread.currentThread().getName());
                 subscriber.onCompleted();
             } else {
                 try {
@@ -65,18 +68,95 @@ public class MQServiceImpl implements MQService, MqttCallback {
                     token.setActionCallback(new IMqttActionListener() {
                         @Override
                         public void onSuccess(IMqttToken iMqttToken) {
-                            Log.d("THREAD", "MQTT Disconnected | " + Thread.currentThread().getName());
+                            Log.d("MQTT", "Disconnected successfully! | " + Thread.currentThread().getName());
                             subscriber.onCompleted();
                         }
 
                         @Override
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                            Log.d("MQTT", "Disconnection error! | " + Thread.currentThread().getName());
                             subscriber.onError(throwable);
                         }
                     });
                 } catch (MqttException e) {
+                    Log.d("MQTT", "Disconnection error! | " + Thread.currentThread().getName());
                     subscriber.onError(e);
                 }
+            }
+        });
+    }
+
+    private Observable<Void> subscribeAction(String topic) {
+        return Observable.create(subscriber -> {
+            Log.d("MQTT", "Subscribing to topic: " + topic + " ... | " + Thread.currentThread().getName());
+            try {
+                IMqttToken token = mqttClient.subscribe(topic, 2);
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        Log.d("MQTT", "Subscribed successfully! | " + Thread.currentThread().getName());
+                        subscriber.onCompleted();
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Log.d("MQTT", "Subscription error! | " + Thread.currentThread().getName());
+                        subscriber.onError(throwable);
+                    }
+                });
+            } catch (MqttException e) {
+                Log.d("MQTT", "Subscription error! | " + Thread.currentThread().getName());
+                subscriber.onError(e);
+            }
+        });
+    }
+
+    private Observable<Void> unsubscribeAction(String topic) {
+        return Observable.create(subscriber -> {
+            Log.d("MQTT", "Unsubscribing from topic: " + topic + " ... | " + Thread.currentThread().getName());
+            try {
+                IMqttToken token = mqttClient.unsubscribe(topic);
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        Log.d("MQTT", "Unsubscribed successfully! | " + Thread.currentThread().getName());
+                        subscriber.onCompleted();
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Log.d("MQTT", "Unsubscription error! | " + Thread.currentThread().getName());
+                        subscriber.onError(throwable);
+                    }
+                });
+            } catch (MqttException e) {
+                Log.d("MQTT", "Unsubscription error! | " + Thread.currentThread().getName());
+                subscriber.onError(e);
+            }
+        });
+    }
+
+    private Observable<Void> publishAction(String topic, String msg) {
+        return Observable.create(subscriber -> {
+            Log.d("MQTT", "Publishing to topic: " + topic + " ... | " + Thread.currentThread().getName());
+            try {
+                IMqttDeliveryToken token = mqttClient.publish(topic, msg.getBytes(), 2, true);
+                token.setActionCallback(new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken iMqttToken) {
+                        Log.d("MQTT", "Published successfully! | " + Thread.currentThread().getName());
+                        subscriber.onCompleted();
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                        Log.d("MQTT", "Publish error! | " + Thread.currentThread().getName());
+                        subscriber.onError(throwable);
+                    }
+                });
+            } catch (MqttException e) {
+                Log.d("MQTT", "Publish error! | " + Thread.currentThread().getName());
+                subscriber.onError(e);
             }
         });
     }
@@ -84,87 +164,47 @@ public class MQServiceImpl implements MQService, MqttCallback {
     @Override
     public Observable<Void> publish(String topic, String msg) {
         return Observable.concat(
-                connect(),
-                Observable.create(subscriber -> {
-                    try {
-                        IMqttDeliveryToken token = mqttClient.publish(topic, msg.getBytes(), 2, true);
-                        token.setActionCallback(new IMqttActionListener() {
-                            @Override
-                            public void onSuccess(IMqttToken iMqttToken) {
-                                Log.d("THREAD", "MQTT Published | " + Thread.currentThread().getName());
-                                subscriber.onCompleted();
-                            }
-
-                            @Override
-                            public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                                subscriber.onError(throwable);
-                            }
-                        });
-                    } catch (MqttException e) {
-                        subscriber.onError(e);
-                    }
-                }),
-                disconnect()
+                connectAction(),
+                publishAction(topic, msg),
+                disconnectAction()
         );
     }
 
     @Override
-    public void request(final String topic, final String msg, final ResponseListener responseListener) {
-        Log.d("THREAD", "MQTT request | " + Thread.currentThread().getName());
-        IMqttToken token;
-        if (!mqttClient.isConnected()) {
-            try {
-                token = mqttClient.connect(mqttConnectOptions);
-                token.setActionCallback(new IMqttActionListener() {
-                    @Override
-                    public void onSuccess(IMqttToken iMqttToken) {
-                        Log.d("THREAD", "MQTT onConnect | " + Thread.currentThread().getName());
-                        request(topic, msg, responseListener);
-                    }
+    public Observable<String> request(String topic, String msg) {
+        return Observable.create(subscriber -> {
+            Log.d("MQTT", "Requesting to topic: " + topic + " ... | " + Thread.currentThread().getName());
 
-                    @Override
-                    public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                        Log.d("THREAD", "MQTT onConnectFailure | " + Thread.currentThread().getName());
-                    }
-                });
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
-        } else {
-            responseListenerMap.put(topic + "/response", responseListener);
-            try {
-                mqttClient.subscribe(topic + "/response", 2);
-                mqttClient.publish(topic + "/request", msg.getBytes(), 2, false);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
-        }
+            mqttClient.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable throwable) {
+
+                }
+
+                @Override
+                public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+                    Log.d("MQTT", "The response has been successfully received! | " + Thread.currentThread().getName());
+                    subscriber.onNext(new String(mqttMessage.getPayload()));
+
+                    Observable.concat(
+                            unsubscribeAction(topic + "/response"),
+                            disconnectAction()
+                    ).doOnError(subscriber::onError).doOnCompleted(subscriber::onCompleted).subscribe();
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+                    Log.d("MQTT", "The request has been successfully delivered! | " + Thread.currentThread().getName());
+                }
+            });
+
+            Observable.concat(
+                    connectAction(),
+                    subscribeAction(topic + "/response"),
+                    publishAction(topic + "/request", msg)
+            ).doOnError(subscriber::onError).subscribe();
+
+        });
     }
 
-    @Override
-    public void connectionLost(Throwable throwable) {
-        Log.d("THREAD", "MQTT connectionLost | " + Thread.currentThread().getName());
-        try {
-            mqttClient.connect(mqttConnectOptions);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-        Log.d("THREAD", "MQTT messageARrived | " + Thread.currentThread().getName());
-        ResponseListener responseListener = responseListenerMap.get(topic);
-        if (responseListener != null) {
-            mqttClient.unsubscribe(topic + "/response");
-            mqttClient.disconnect();
-            responseListenerMap.remove(topic);
-            responseListener.onResponse(new String(mqttMessage.getPayload()));
-        }
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-        Log.d("THREAD", "MQTT deliveryComplete | " + Thread.currentThread().getName());
-    }
 }

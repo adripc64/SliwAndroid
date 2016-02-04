@@ -12,6 +12,8 @@ import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class UserServiceImpl implements UserService {
 
@@ -27,15 +29,20 @@ public class UserServiceImpl implements UserService {
     public Observable<User> getUserLinkedTo(final String deviceId) {
         return Observable.create(subscriber -> {
             String topic = "user/linkedTo/" + deviceId;
-            mqService.request(topic, (new Date()).toString(), msg -> {
-                User user = null;
-                try {
-                    user = objectMapper.readValue(msg, User.class);
-                    subscriber.onNext(user);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            String msg = (new Date()).toString();
+
+            mqService.request(topic, msg)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(Schedulers.newThread())
+                    .subscribe(s -> {
+                        try {
+                            User user = objectMapper.readValue(s, User.class);
+                            subscriber.onNext(user);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            subscriber.onError(e);
+                        }
+                    });
         });
     }
 
@@ -44,8 +51,13 @@ public class UserServiceImpl implements UserService {
         return Observable.create(subscriber -> {
             try {
                 String topic = "user/" + user.getId() + "/configure";
-                String payload = objectMapper.writeValueAsString(config);
-                mqService.publish(topic, payload).subscribe(subscriber);
+                String msg = objectMapper.writeValueAsString(config);
+
+                mqService.publish(topic, msg)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(Schedulers.newThread())
+                        .subscribe(subscriber);
+
             } catch (JsonProcessingException e) {
                 subscriber.onError(e);
             }

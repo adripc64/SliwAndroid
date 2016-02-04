@@ -21,7 +21,7 @@ import rx.schedulers.Schedulers;
 
 public class ConfigControllerImpl implements ConfigController {
 
-    private static final String MQTT_URI = "tcp://192.168.0.82:61613";
+    private static final String MQTT_URI = "tcp://192.168.0.90:61613";
     private static final String MQTT_USER = "admin";
     private static final String MQTT_PASS = "password";
 
