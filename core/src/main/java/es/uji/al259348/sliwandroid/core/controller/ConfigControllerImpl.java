@@ -2,13 +2,8 @@ package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
 import java.util.ListIterator;
 
-import es.uji.al259348.sliwandroid.core.R;
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.model.WifiScanSample;
@@ -29,7 +24,6 @@ public class ConfigControllerImpl implements ConfigController {
     private User user;
     private Config config;
 
-    private MqttAndroidClient mqttClient;
     private MessagingService messagingService;
     private UserService userService;
     private WifiService wifiService;
@@ -44,27 +38,14 @@ public class ConfigControllerImpl implements ConfigController {
 
         Context context = configView.getContext();
 
-        String brokerHost = context.getResources().getString(R.string.mqtt_broker_host);
-        String brokerUser = context.getResources().getString(R.string.mqtt_broker_user);
-        String brokerPass = context.getResources().getString(R.string.mqtt_broker_pass);
-        String clientId = context.getResources().getString(R.string.mqtt_client_id);
-
-        MqttConnectOptions connectOptions = new MqttConnectOptions();
-        connectOptions.setCleanSession(true);
-        connectOptions.setUserName(brokerUser);
-        connectOptions.setPassword(brokerPass.toCharArray());
-
-        this.mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
-
-        this.messagingService = new MessagingServiceImpl(mqttClient, connectOptions);
-        this.userService = new UserServiceImpl(messagingService);
-        this.wifiService = new WifiServiceImpl(configView.getContext());
+        this.messagingService = new MessagingServiceImpl(context);
+        this.userService = new UserServiceImpl(context, messagingService);
+        this.wifiService = new WifiServiceImpl(context);
     }
 
     @Override
     public void onDestroy() {
-        mqttClient.unregisterResources();
-        //mqttClient.close();
+        messagingService.onDestroy();
     }
 
     @Override

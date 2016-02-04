@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.AlarmService;
 import es.uji.al259348.sliwandroid.core.services.AlarmServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.UserService;
+import es.uji.al259348.sliwandroid.core.services.UserServiceImpl;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 
@@ -17,9 +20,19 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Log.d("BootCompletedReceiver", "Boot completed, setting alarm for TakeSampleReceiver...");
-            AlarmService alarmService = new AlarmServiceImpl(context);
-            alarmService.setTakeSampleAlarm();
+            Log.d("BootCompletedReceiver", "Boot completed...");
+
+            UserService userService = new UserServiceImpl(context.getApplicationContext());
+            User user = userService.getCurrentLinkedUser();
+
+            if (user != null && user.isConfigured()) {
+                Log.d("BootCompletedReceiver", "Setting alarm for TakeSampleReceiver...");
+                AlarmService alarmService = new AlarmServiceImpl(context);
+                alarmService.setTakeSampleAlarm();
+            } else {
+                Log.d("BootCompletedReceiver", "There isn't a linked user or it isn't configured yet, so the alarm is not necessary.");
+            }
+
         }
     }
 

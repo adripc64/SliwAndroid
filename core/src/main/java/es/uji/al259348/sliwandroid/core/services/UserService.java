@@ -6,6 +6,9 @@ import rx.Observable;
 
 public interface UserService {
 
+    User getCurrentLinkedUser();
+    boolean setCurrentLinkedUser(User user);
+
     Observable<User> getUserLinkedTo(String deviceId);
     Observable<Void> configureUser(User user, Config config);
 

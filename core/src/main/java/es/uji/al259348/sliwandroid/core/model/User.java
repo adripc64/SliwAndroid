@@ -7,6 +7,7 @@ public class User {
     private String id;
     private String name;
     private List<Location> locations;
+    private boolean configured;
 
     public User() {
     }
@@ -33,5 +34,13 @@ public class User {
 
     public void setLocations(List<Location> locations) {
         this.locations = locations;
+    }
+
+    public boolean isConfigured() {
+        return configured;
+    }
+
+    public void setConfigured(boolean configured) {
+        this.configured = configured;
     }
 }

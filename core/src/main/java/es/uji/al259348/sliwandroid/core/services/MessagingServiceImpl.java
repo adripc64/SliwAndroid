@@ -1,5 +1,6 @@
 package es.uji.al259348.sliwandroid.core.services;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -10,17 +11,35 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import es.uji.al259348.sliwandroid.core.R;
 import rx.Observable;
 
 public class MessagingServiceImpl implements MessagingService {
 
+    private Context context;
+
     private MqttAndroidClient mqttClient;
     private MqttConnectOptions mqttConnectOptions;
 
-    public MessagingServiceImpl(MqttAndroidClient mqttClient, MqttConnectOptions mqttConnectOptions) {
-        this.mqttClient = mqttClient;
-        this.mqttConnectOptions = mqttConnectOptions;
+    public MessagingServiceImpl(Context context) {
+        this.context = context;
+        createClientFromContext();
+    }
+
+    private void createClientFromContext() {
+        String brokerHost = context.getResources().getString(R.string.mqtt_broker_host);
+        String brokerUser = context.getResources().getString(R.string.mqtt_broker_user);
+        String brokerPass = context.getResources().getString(R.string.mqtt_broker_pass);
+        String clientId = context.getResources().getString(R.string.mqtt_client_id);
+
+        mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
+
+        mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setCleanSession(true);
+        mqttConnectOptions.setUserName(brokerUser);
+        mqttConnectOptions.setPassword(brokerPass.toCharArray());
     }
 
     private Observable<Void> connectAction() {
@@ -156,6 +175,11 @@ public class MessagingServiceImpl implements MessagingService {
                 subscriber.onError(e);
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        mqttClient.unregisterResources();
     }
 
     @Override

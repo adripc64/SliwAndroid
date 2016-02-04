@@ -1,5 +1,8 @@
 package es.uji.al259348.sliwandroid.core.services;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,12 +16,69 @@ import rx.schedulers.Schedulers;
 
 public class UserServiceImpl implements UserService {
 
-    private MessagingService messagingService;
-    private ObjectMapper objectMapper;
+    private static final String SHARED_PREFERENCES_NAME = "UserServiceSharedPreferences";
+    private static final String SHARED_PREFERENCES_KEY_USER = "user";
 
-    public UserServiceImpl(MessagingService messagingService) {
+    private Context context;
+
+    private MessagingService messagingService;
+
+    private ObjectMapper objectMapper;
+    private SharedPreferences sharedPreferences;
+
+    public UserServiceImpl(Context context) {
+        this.context = context;
+        this.messagingService = new MessagingServiceImpl(context);
+        this.objectMapper = new ObjectMapper();
+        this.sharedPreferences = getSharedPreferences();
+    }
+
+    public UserServiceImpl(Context context, MessagingService messagingService) {
+        this.context = context;
         this.messagingService = messagingService;
         this.objectMapper = new ObjectMapper();
+        this.sharedPreferences = getSharedPreferences();
+    }
+
+    private SharedPreferences getSharedPreferences() {
+        return context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public User getCurrentLinkedUser() {
+        User res = null;
+
+        if (sharedPreferences.contains(SHARED_PREFERENCES_KEY_USER)) {
+            String value = sharedPreferences.getString(SHARED_PREFERENCES_KEY_USER, "");
+            if (!value.isEmpty()) {
+                try {
+                    res = objectMapper.readValue(value, User.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return res;
+    }
+
+    @Override
+    public boolean setCurrentLinkedUser(User user) {
+
+        String value = null;
+
+        if (user != null) {
+            try {
+                value = objectMapper.writeValueAsString(user);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SHARED_PREFERENCES_KEY_USER, value);
+        return editor.commit();
     }
 
     @Override
