@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="mqtt_broker_host">tcp://192.168.0.90:61613</string>
+    <string name="mqtt_broker_user">admin</string>
+    <string name="mqtt_broker_pass">password</string>
+    <string name="mqtt_client_id">SliwAndroid</string>
+
+</resources>

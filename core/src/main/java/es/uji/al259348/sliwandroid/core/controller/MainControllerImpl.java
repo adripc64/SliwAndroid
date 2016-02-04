@@ -1,9 +1,15 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import es.uji.al259348.sliwandroid.core.R;
+import es.uji.al259348.sliwandroid.core.services.AlarmService;
+import es.uji.al259348.sliwandroid.core.services.AlarmServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.MQService;
 import es.uji.al259348.sliwandroid.core.services.MQServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.UserService;
@@ -14,10 +20,6 @@ import rx.schedulers.Schedulers;
 
 public class MainControllerImpl implements MainController {
 
-    private static final String MQTT_URI = "tcp://192.168.0.90:61613";
-    private static final String MQTT_USER = "admin";
-    private static final String MQTT_PASS = "password";
-
     private MainView mainView;
 
     private MqttAndroidClient mqttClient;
@@ -27,12 +29,19 @@ public class MainControllerImpl implements MainController {
     public MainControllerImpl(MainView mainView) {
         this.mainView = mainView;
 
+        Context context = mainView.getContext();
+
+        String brokerHost = context.getResources().getString(R.string.mqtt_broker_host);
+        String brokerUser = context.getResources().getString(R.string.mqtt_broker_user);
+        String brokerPass = context.getResources().getString(R.string.mqtt_broker_pass);
+        String clientId = context.getResources().getString(R.string.mqtt_client_id);
+
         MqttConnectOptions connectOptions = new MqttConnectOptions();
         connectOptions.setCleanSession(true);
-        connectOptions.setUserName(MQTT_USER);
-        connectOptions.setPassword(MQTT_PASS.toCharArray());
+        connectOptions.setUserName(brokerUser);
+        connectOptions.setPassword(brokerPass.toCharArray());
 
-        this.mqttClient = new MqttAndroidClient(mainView.getContext(), MQTT_URI, "publisher",  new MemoryPersistence());
+        this.mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
 
         this.mqService = new MQServiceImpl(mqttClient, connectOptions);
         this.userService = new UserServiceImpl(mqService);
@@ -41,7 +50,7 @@ public class MainControllerImpl implements MainController {
     @Override
     public void onDestroy() {
         mqttClient.unregisterResources();
-        mqttClient.close();
+        //mqttClient.close();
     }
 
     @Override

@@ -1,11 +1,14 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
+import android.content.Context;
+
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.util.ListIterator;
 
+import es.uji.al259348.sliwandroid.core.R;
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.model.WifiScanSample;
@@ -20,10 +23,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ConfigControllerImpl implements ConfigController {
-
-    private static final String MQTT_URI = "tcp://192.168.0.90:61613";
-    private static final String MQTT_USER = "admin";
-    private static final String MQTT_PASS = "password";
 
     private ConfigView configView;
 
@@ -43,12 +42,19 @@ public class ConfigControllerImpl implements ConfigController {
         this.user = user;
         this.config = new Config(user.getLocations());
 
+        Context context = configView.getContext();
+
+        String brokerHost = context.getResources().getString(R.string.mqtt_broker_host);
+        String brokerUser = context.getResources().getString(R.string.mqtt_broker_user);
+        String brokerPass = context.getResources().getString(R.string.mqtt_broker_pass);
+        String clientId = context.getResources().getString(R.string.mqtt_client_id);
+
         MqttConnectOptions connectOptions = new MqttConnectOptions();
         connectOptions.setCleanSession(true);
-        connectOptions.setUserName(MQTT_USER);
-        connectOptions.setPassword(MQTT_PASS.toCharArray());
+        connectOptions.setUserName(brokerUser);
+        connectOptions.setPassword(brokerPass.toCharArray());
 
-        this.mqttClient = new MqttAndroidClient(configView.getContext(), MQTT_URI, "publisher",  new MemoryPersistence());
+        this.mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
 
         this.mqService = new MQServiceImpl(mqttClient, connectOptions);
         this.userService = new UserServiceImpl(mqService);
@@ -58,7 +64,7 @@ public class ConfigControllerImpl implements ConfigController {
     @Override
     public void onDestroy() {
         mqttClient.unregisterResources();
-        mqttClient.close();
+        //mqttClient.close();
     }
 
     @Override
