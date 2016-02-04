@@ -36,7 +36,10 @@ public class MainControllerImpl implements MainController {
         userService.getUserLinkedTo("a:b:c:d:e")
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mainView::onUserLinked);
+                .subscribe(user -> {
+                    userService.setCurrentLinkedUser(user);
+                    mainView.onUserLinked(user);
+                });
     }
 
 }

@@ -90,7 +90,15 @@ public class ConfigControllerImpl implements ConfigController {
             userService.configureUser(user, config)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(aVoid -> {}, Throwable::printStackTrace, configView::onConfigFinished);
+                    .subscribe(aVoid -> {
+                    }, Throwable::printStackTrace, this::onConfigFinished);
         }
     }
+
+    private void onConfigFinished() {
+        user.setConfigured(true);
+        userService.setCurrentLinkedUser(user);
+        configView.onConfigFinished();
+    }
+
 }

@@ -25,12 +25,16 @@ public class BootCompletedReceiver extends BroadcastReceiver {
             UserService userService = new UserServiceImpl(context.getApplicationContext());
             User user = userService.getCurrentLinkedUser();
 
-            if (user != null && user.isConfigured()) {
-                Log.d("BootCompletedReceiver", "Setting alarm for TakeSampleReceiver...");
-                AlarmService alarmService = new AlarmServiceImpl(context);
-                alarmService.setTakeSampleAlarm();
+            if (user != null) {
+                if (user.isConfigured()) {
+                    Log.d("BootCompletedReceiver", "Setting alarm for TakeSampleReceiver...");
+                    AlarmService alarmService = new AlarmServiceImpl(context.getApplicationContext());
+                    alarmService.setTakeSampleAlarm();
+                } else {
+                    Log.d("BootCompletedReceiver", "The user isn't configured yet, so the alarm is not necessary.");
+                }
             } else {
-                Log.d("BootCompletedReceiver", "There isn't a linked user or it isn't configured yet, so the alarm is not necessary.");
+                Log.d("BootCompletedReceiver", "There isn't a linked user, so the alarm is not necessary.");
             }
 
         }
