@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
 
 import es.uji.al259348.sliwandroid.core.R;
 import es.uji.al259348.sliwandroid.core.receivers.TakeSampleReceiver;
@@ -14,16 +15,19 @@ public class AlarmServiceImpl implements AlarmService {
     private Context context;
     private AlarmManager alarmManager;
 
+    private PendingIntent pendingIntentTakeSampleReceiver;
+
     public AlarmServiceImpl(Context context) {
         this.context = context;
         this.alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        Intent intentTakeSampleReceiver = new Intent(context, TakeSampleReceiver.class);
+        pendingIntentTakeSampleReceiver = PendingIntent.getBroadcast(context, 0, intentTakeSampleReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
     public void setTakeSampleAlarm() {
-        Intent intent = new Intent(context, TakeSampleReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        Log.d("AlarmService", "Setting TakeSampleAlarm");
         long triggerAtMillis = SystemClock.elapsedRealtime();
         long intervalMillis = 1000 * context.getResources().getInteger(R.integer.intervalTakeSampleAlarmInSeconds);
 
@@ -31,7 +35,13 @@ public class AlarmServiceImpl implements AlarmService {
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 triggerAtMillis,
                 intervalMillis,
-                pendingIntent);
+                pendingIntentTakeSampleReceiver);
+    }
+
+    @Override
+    public void cancelTakeSampleAlarm() {
+        Log.d("AlarmService", "Canceling TakeSampleAlarm");
+        alarmManager.cancel(pendingIntentTakeSampleReceiver);
     }
 
 }
