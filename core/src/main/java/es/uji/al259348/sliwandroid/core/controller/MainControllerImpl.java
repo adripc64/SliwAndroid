@@ -3,10 +3,14 @@ package es.uji.al259348.sliwandroid.core.controller;
 import android.content.Context;
 
 import es.uji.al259348.sliwandroid.core.model.User;
+import es.uji.al259348.sliwandroid.core.services.AlarmService;
+import es.uji.al259348.sliwandroid.core.services.AlarmServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.MessagingService;
 import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.UserService;
 import es.uji.al259348.sliwandroid.core.services.UserServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.WifiService;
+import es.uji.al259348.sliwandroid.core.services.WifiServiceImpl;
 import es.uji.al259348.sliwandroid.core.view.MainView;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -17,6 +21,8 @@ public class MainControllerImpl implements MainController {
 
     private MessagingService messagingService;
     private UserService userService;
+    private WifiService wifiService;
+    private AlarmService alarmService;
 
     public MainControllerImpl(MainView mainView) {
         this.mainView = mainView;
@@ -24,6 +30,8 @@ public class MainControllerImpl implements MainController {
         Context context = mainView.getContext();
         this.messagingService = new MessagingServiceImpl(context);
         this.userService = new UserServiceImpl(context, messagingService);
+        this.wifiService = new WifiServiceImpl(context);
+        this.alarmService = new AlarmServiceImpl(context);
     }
 
     @Override
@@ -34,6 +42,7 @@ public class MainControllerImpl implements MainController {
         } else if (!user.isConfigured()) {
             mainView.hasToConfigure();
         } else {
+            alarmService.setTakeSampleAlarm();
             mainView.isOk();
         }
     }
@@ -45,7 +54,8 @@ public class MainControllerImpl implements MainController {
 
     @Override
     public void link() {
-        userService.getUserLinkedTo("a:b:c:d:e")
+        String macAdress = wifiService.getMacAddress();
+        userService.getUserLinkedTo(macAdress)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(user -> {
@@ -57,6 +67,7 @@ public class MainControllerImpl implements MainController {
     @Override
     public void unlink() {
         userService.setCurrentLinkedUser(null);
+        alarmService.cancelTakeSampleAlarm();
     }
 
 }
