@@ -6,5 +6,6 @@ import rx.Observable;
 public interface WifiService {
 
     Observable<WifiScanSample> performScan();
+    String getMacAddress();
 
 }

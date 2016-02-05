@@ -51,4 +51,9 @@ public class WifiServiceImpl implements WifiService {
             wifiManager.startScan();
         });
     }
+
+    @Override
+    public String getMacAddress() {
+        return wifiManager.getConnectionInfo().getMacAddress();
+    }
 }

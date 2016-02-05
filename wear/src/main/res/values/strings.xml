@@ -2,6 +2,7 @@
     <string name="app_name">SliwAndroid</string>
 
     <string name="linkUser">Vincular usuario</string>
+    <string name="ok">OK</string>
 
     <string name="configStartText">Pulsa OK para configurar\n(5 minutos)</string>
     <string name="configStartBtnText">OK</string>
