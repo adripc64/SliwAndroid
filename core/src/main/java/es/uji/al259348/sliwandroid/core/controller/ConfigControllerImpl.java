@@ -21,26 +21,26 @@ public class ConfigControllerImpl implements ConfigController {
 
     private ConfigView configView;
 
-    private User user;
-    private Config config;
-
     private MessagingService messagingService;
     private UserService userService;
     private WifiService wifiService;
 
+    private User user;
+    private Config config;
+
     private ListIterator<Config.ConfigStep> configStepsIter;
     private Config.ConfigStep currentStep;
 
-    public ConfigControllerImpl(ConfigView configView, User user) {
+    public ConfigControllerImpl(ConfigView configView) {
         this.configView = configView;
-        this.user = user;
-        this.config = new Config(user.getLocations());
 
         Context context = configView.getContext();
-
         this.messagingService = new MessagingServiceImpl(context);
         this.userService = new UserServiceImpl(context, messagingService);
         this.wifiService = new WifiServiceImpl(context);
+
+        this.user = userService.getCurrentLinkedUser();
+        this.config = new Config(user.getLocations());
     }
 
     @Override

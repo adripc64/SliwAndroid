@@ -1,25 +1,17 @@
 package es.uji.al259348.sliwandroid.wear.activities;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
 import es.uji.al259348.sliwandroid.core.controller.MainController;
 import es.uji.al259348.sliwandroid.core.controller.MainControllerImpl;
-import es.uji.al259348.sliwandroid.core.model.Config;
-import es.uji.al259348.sliwandroid.core.model.Location;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.view.MainView;
 import es.uji.al259348.sliwandroid.wear.R;
@@ -32,10 +24,15 @@ public class MainActivity extends Activity implements
         MainFragment.OnFragmentInteractionListener,
         ConfirmFragment.OnFragmentInteractionListener {
 
+    private static final String STEP_LINK = "stepLink";
+    private static final String STEP_CONFIG = "StepConfig";
+    private static final String STEP_OK = "stepOk";
+    private static final int REQUEST_CODE_CONFIG = 1;
+
     private MainController controller;
     private View fragmentContent;
 
-    private User userLinked;
+    private String step;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +46,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 fragmentContent = stub.findViewById(R.id.fragmentContent);
-
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(fragmentContent.getId(), ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
-                transaction.commit();
+                controller.decideStep();
             }
         });
     }
@@ -66,16 +60,24 @@ public class MainActivity extends Activity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CONFIG) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    Toast.makeText(MainActivity.this, "Configuración terminada.", Toast.LENGTH_SHORT).show();
+                    break;
 
-        if (data != null) {
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(fragmentContent.getId(), MainFragment.newInstance());
-            transaction.commit();
+                case RESULT_CANCELED:
+                    Toast.makeText(MainActivity.this, "Configuración cancelada.", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+            controller.decideStep();
+        }
+    }
 
-            Toast.makeText(MainActivity.this, "Configuración terminada.", Toast.LENGTH_SHORT).show();
-        } else
-            Toast.makeText(MainActivity.this, "Configuración cancelada.", Toast.LENGTH_SHORT).show();
-
+    private void setFragment(Fragment fragment) {
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(fragmentContent.getId(), fragment);
+        transaction.commit();
     }
 
     @Override
@@ -84,33 +86,47 @@ public class MainActivity extends Activity implements
     }
 
     @Override
+    public void hasToLink() {
+        step = STEP_LINK;
+        setFragment(ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
+    }
+
+    @Override
     public void onUserLinked(User user) {
-        userLinked = user;
+        Toast.makeText(MainActivity.this, "Usuario vinculado: " + user.getName(), Toast.LENGTH_SHORT).show();
+        controller.decideStep();
+    }
 
-        Toast.makeText(MainActivity.this, "Hola " + user.getName(), Toast.LENGTH_SHORT).show();
+    @Override
+    public void hasToConfigure() {
+        step = STEP_CONFIG;
+        setFragment(ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
+    }
 
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(fragmentContent.getId(), ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
-        transaction.commit();
-
+    @Override
+    public void isOk() {
+        step = STEP_OK;
+        setFragment(MainFragment.newInstance());
     }
 
     @Override
     public void onConfirm() {
-        if (userLinked == null) {
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(fragmentContent.getId(), LoadingFragment.newInstance("Vinculando..."));
-            transaction.commit();
-            controller.retrieveUserLinked();
-        } else {
-            Intent i = new Intent(MainActivity.this, ConfigActivity.class);
-            try {
-                String jsonUser = (new ObjectMapper()).writeValueAsString(userLinked);
-                i.putExtra("user", jsonUser);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            startActivityForResult(i, 0);
+        switch (step) {
+            case STEP_LINK:
+                setFragment(LoadingFragment.newInstance("Vinculando..."));
+                controller.link();
+                break;
+
+            case STEP_CONFIG:
+                Intent i = new Intent(MainActivity.this, ConfigActivity.class);
+                startActivityForResult(i, REQUEST_CODE_CONFIG);
+                break;
         }
+    }
+
+    @Override
+    public void onUnlink() {
+        controller.unlink();
+        controller.decideStep();
     }
 }

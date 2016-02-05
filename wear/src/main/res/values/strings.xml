@@ -2,11 +2,11 @@
     <string name="app_name">SliwAndroid</string>
 
     <string name="linkUser">Vincular usuario</string>
-    <string name="id">Identificador</string>
-    <string name="ok">Ok</string>
-    <string name="ready">Ya estoy</string>
 
     <string name="configStartText">Pulsa OK para configurar\n(5 minutos)</string>
+    <string name="configStartBtnText">OK</string>
+    <string name="configStartStepBtnText">OK</string>
+
     <string name="progressBarMsg">Espera sin moverte</string>
 
     <string-array name="numbers">
@@ -21,8 +21,5 @@
         <item>8</item>
         <item>9</item>
     </string-array>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

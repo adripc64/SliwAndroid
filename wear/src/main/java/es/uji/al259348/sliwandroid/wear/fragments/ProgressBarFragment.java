@@ -12,15 +12,15 @@ import es.uji.al259348.sliwandroid.wear.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ConfigProgressBarFragment#newInstance} factory method to
+ * Use the {@link ProgressBarFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ConfigProgressBarFragment extends Fragment {
+public class ProgressBarFragment extends Fragment {
 
     private ProgressBar progressBar;
     private TextView tvProgress;
 
-    public ConfigProgressBarFragment() {
+    public ProgressBarFragment() {
         // Required empty public constructor
     }
 
@@ -28,10 +28,10 @@ public class ConfigProgressBarFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment ConfigProgressBarFragment.
+     * @return A new instance of fragment ProgressBarFragment.
      */
-    public static ConfigProgressBarFragment newInstance() {
-        return new ConfigProgressBarFragment();
+    public static ProgressBarFragment newInstance() {
+        return new ProgressBarFragment();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ConfigProgressBarFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_config_progress_bar, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_progress_bar, container, false);
 
         progressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
         tvProgress = (TextView) rootView.findViewById(R.id.tvProgress);

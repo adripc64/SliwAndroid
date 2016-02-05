@@ -2,6 +2,7 @@ package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
 
+import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.MessagingService;
 import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.UserService;
@@ -21,9 +22,20 @@ public class MainControllerImpl implements MainController {
         this.mainView = mainView;
 
         Context context = mainView.getContext();
-
         this.messagingService = new MessagingServiceImpl(context);
         this.userService = new UserServiceImpl(context, messagingService);
+    }
+
+    @Override
+    public void decideStep() {
+        User user = userService.getCurrentLinkedUser();
+        if (user == null) {
+            mainView.hasToLink();
+        } else if (!user.isConfigured()) {
+            mainView.hasToConfigure();
+        } else {
+            mainView.isOk();
+        }
     }
 
     @Override
@@ -32,7 +44,7 @@ public class MainControllerImpl implements MainController {
     }
 
     @Override
-    public void retrieveUserLinked() {
+    public void link() {
         userService.getUserLinkedTo("a:b:c:d:e")
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -40,6 +52,11 @@ public class MainControllerImpl implements MainController {
                     userService.setCurrentLinkedUser(user);
                     mainView.onUserLinked(user);
                 });
+    }
+
+    @Override
+    public void unlink() {
+        userService.setCurrentLinkedUser(null);
     }
 
 }

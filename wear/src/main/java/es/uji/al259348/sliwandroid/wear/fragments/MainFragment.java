@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import es.uji.al259348.sliwandroid.wear.R;
 
@@ -31,7 +32,6 @@ public class MainFragment extends Fragment {
      *
      * @return A new instance of fragment MainFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static MainFragment newInstance() {
         return new MainFragment();
     }
@@ -44,7 +44,17 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        Button btnUnlink = (Button) rootView.findViewById(R.id.btnUnlink);
+        btnUnlink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onUnlink();
+            }
+        });
+
+        return rootView;
     }
 
     @Override
@@ -75,6 +85,6 @@ public class MainFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-
+         void onUnlink();
     }
 }
