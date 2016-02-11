@@ -34,4 +34,13 @@ public class Location {
         this.checkMsg = checkMsg;
     }
 
+    @Override
+    public String toString() {
+        return "Location{" +
+                "name='" + name + '\'' +
+                ", configMsg='" + configMsg + '\'' +
+                ", checkMsg='" + checkMsg + '\'' +
+                '}';
+    }
+
 }
