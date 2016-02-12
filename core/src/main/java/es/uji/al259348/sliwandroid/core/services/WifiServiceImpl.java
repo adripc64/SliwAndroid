@@ -4,12 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
-import java.util.List;
-
-import es.uji.al259348.sliwandroid.core.model.WifiScanSample;
+import es.uji.al259348.sliwandroid.core.model.Sample;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -17,9 +14,9 @@ public class WifiServiceImpl implements WifiService {
 
     public class WifiScanReceiver extends BroadcastReceiver {
 
-        private Subscriber<? super WifiScanSample> subscriber;
+        private Subscriber<? super Sample> subscriber;
 
-        public WifiScanReceiver(Subscriber<? super WifiScanSample> subscriber) {
+        public WifiScanReceiver(Subscriber<? super Sample> subscriber) {
             this.subscriber = subscriber;
         }
 
@@ -27,7 +24,7 @@ public class WifiServiceImpl implements WifiService {
         public void onReceive(Context context, Intent intent) {
             context.unregisterReceiver(this);
 
-            WifiScanSample sample = new WifiScanSample(wifiManager.getScanResults());
+            Sample sample = new Sample(wifiManager.getScanResults());
             subscriber.onNext(sample);
         }
 
@@ -42,7 +39,7 @@ public class WifiServiceImpl implements WifiService {
     }
 
     @Override
-    public Observable<WifiScanSample> performScan() {
+    public Observable<Sample> performScan() {
         return Observable.create(subscriber -> {
             context.registerReceiver(
                     new WifiScanReceiver(subscriber),

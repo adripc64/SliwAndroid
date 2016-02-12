@@ -13,7 +13,7 @@ public class Config {
     public static class ConfigStep {
 
         private Location location;
-        private List<WifiScanSample> samples;
+        private List<Sample> samples;
 
         public ConfigStep() {
             super();
@@ -35,15 +35,15 @@ public class Config {
             this.location = location;
         }
 
-        public List<WifiScanSample> getSamples() {
+        public List<Sample> getSamples() {
             return samples;
         }
 
-        public void setSamples(List<WifiScanSample> samples) {
+        public void setSamples(List<Sample> samples) {
             this.samples = samples;
         }
 
-        public void addSample(WifiScanSample sample) {
+        public void addSample(Sample sample) {
             samples.add(sample);
         }
 

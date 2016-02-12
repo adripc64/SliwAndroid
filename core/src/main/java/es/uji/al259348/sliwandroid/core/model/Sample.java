@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class WifiScanSample {
+public class Sample {
 
     public static class WifiScanResult {
 
         public String SSID;
         public String BSSID;
-        public String capabilities;
         public int level;
 
         public WifiScanResult() {
@@ -23,7 +22,6 @@ public class WifiScanSample {
             super();
             this.SSID = scanResult.SSID;
             this.BSSID = scanResult.BSSID;
-            this.capabilities = scanResult.capabilities;
             this.level = scanResult.level;
         }
 
@@ -32,22 +30,24 @@ public class WifiScanSample {
             return "WifiScanResult{" +
                     "SSID='" + SSID + '\'' +
                     ", BSSID='" + BSSID + '\'' +
-                    ", capabilities='" + capabilities + '\'' +
                     ", level=" + level +
                     '}';
         }
+
     }
 
     private Date date;
+    private Location location;
     private List<WifiScanResult> scanResults;
 
-    public WifiScanSample() {
+    public Sample() {
         super();
         this.date = new Date();
+        this.location = null;
         this.scanResults = new ArrayList<>();
     }
 
-    public WifiScanSample(List<ScanResult> scanResults) {
+    public Sample(List<ScanResult> scanResults) {
         super();
         this.date = new Date();
         this.scanResults = new ArrayList<>();
@@ -65,6 +65,14 @@ public class WifiScanSample {
         this.date = date;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public List<WifiScanResult> getScanResults() {
         return scanResults;
     }
@@ -75,9 +83,11 @@ public class WifiScanSample {
 
     @Override
     public String toString() {
-        return "WifiScanSample{" +
+        return "Sample{" +
                 "date=" + date +
+                ", location=" + location +
                 ", scanResults=" + scanResults +
                 '}';
     }
+
 }

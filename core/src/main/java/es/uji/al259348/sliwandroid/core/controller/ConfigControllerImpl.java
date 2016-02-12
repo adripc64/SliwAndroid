@@ -6,7 +6,7 @@ import java.util.ListIterator;
 
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
-import es.uji.al259348.sliwandroid.core.model.WifiScanSample;
+import es.uji.al259348.sliwandroid.core.model.Sample;
 import es.uji.al259348.sliwandroid.core.services.MessagingService;
 import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.UserService;
@@ -69,7 +69,7 @@ public class ConfigControllerImpl implements ConfigController {
                 .subscribe(this::onScanPerformed);
     }
 
-    private void onScanPerformed(WifiScanSample sample) {
+    private void onScanPerformed(Sample sample) {
         currentStep.addSample(sample);
 
         int progress = currentStep.getProgress();
