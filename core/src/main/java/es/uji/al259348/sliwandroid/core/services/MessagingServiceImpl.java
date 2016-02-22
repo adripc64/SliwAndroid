@@ -13,6 +13,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.util.UUID;
+
 import es.uji.al259348.sliwandroid.core.R;
 import rx.Observable;
 
@@ -32,7 +34,7 @@ public class MessagingServiceImpl implements MessagingService {
         String brokerHost = context.getResources().getString(R.string.mqtt_broker_host);
         String brokerUser = context.getResources().getString(R.string.mqtt_broker_user);
         String brokerPass = context.getResources().getString(R.string.mqtt_broker_pass);
-        String clientId = context.getResources().getString(R.string.mqtt_client_id);
+        String clientId = context.getResources().getString(R.string.mqtt_client_id) + "-" + UUID.randomUUID().toString();
 
         mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
 
@@ -156,7 +158,7 @@ public class MessagingServiceImpl implements MessagingService {
         return Observable.create(subscriber -> {
             Log.d("MQTT", "Publishing to topic: " + topic + " ... | " + Thread.currentThread().getName());
             try {
-                IMqttDeliveryToken token = mqttClient.publish(topic, msg.getBytes(), 2, true);
+                IMqttDeliveryToken token = mqttClient.publish(topic, msg.getBytes(), 2, false);
                 token.setActionCallback(new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken iMqttToken) {

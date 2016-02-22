@@ -1,6 +1,12 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
+import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.UUID;
 
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.AlarmService;
@@ -61,6 +67,7 @@ public class MainControllerImpl implements MainController {
                 .subscribe(user -> {
                     userService.setCurrentLinkedUser(user);
                     mainView.onUserLinked(user);
+                    Log.v("AA", "bb");
                 });
     }
 
@@ -68,6 +75,33 @@ public class MainControllerImpl implements MainController {
     public void unlink() {
         userService.setCurrentLinkedUser(null);
         alarmService.cancelTakeSampleAlarm();
+    }
+
+    @Override
+    public void takeSample() {
+        wifiService.performScan()
+                .doOnError(Throwable::printStackTrace)
+                .doOnNext(sample -> {
+
+                    sample.setId(UUID.randomUUID().toString());
+                    sample.setUserId("1");
+                    sample.setDeviceId(wifiService.getMacAddress());
+
+                    try {
+                        ObjectMapper objectMapper = new ObjectMapper();
+
+                        String topic = "user/1/sample";
+                        String msg = objectMapper.writeValueAsString(sample);
+
+                        messagingService.publish(topic, msg)
+                                .doOnError(Throwable::printStackTrace)
+                                .subscribe();
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
+                })
+                .subscribe();
     }
 
 }

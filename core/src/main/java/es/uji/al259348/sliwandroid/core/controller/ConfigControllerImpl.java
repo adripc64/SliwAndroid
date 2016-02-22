@@ -2,7 +2,9 @@ package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
 
+import java.util.List;
 import java.util.ListIterator;
+import java.util.UUID;
 
 import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
@@ -40,7 +42,7 @@ public class ConfigControllerImpl implements ConfigController {
         this.wifiService = new WifiServiceImpl(context);
 
         this.user = userService.getCurrentLinkedUser();
-        this.config = new Config(user.getLocations());
+        this.config = new Config(user);
     }
 
     @Override
@@ -70,6 +72,13 @@ public class ConfigControllerImpl implements ConfigController {
     }
 
     private void onScanPerformed(Sample sample) {
+
+        sample.setId(UUID.randomUUID().toString());
+        sample.setUserId(user.getId());
+        sample.setDeviceId(wifiService.getMacAddress());
+        sample.setLocation(currentStep.getLocation().getName());
+        sample.setValid(true);
+
         currentStep.addSample(sample);
 
         int progress = currentStep.getProgress();

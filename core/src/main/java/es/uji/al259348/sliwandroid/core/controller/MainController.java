@@ -7,5 +7,6 @@ public interface MainController {
     void decideStep();
     void link();
     void unlink();
+    void takeSample();
 
 }

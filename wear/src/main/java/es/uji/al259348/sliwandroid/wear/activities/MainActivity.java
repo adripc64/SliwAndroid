@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -100,6 +101,7 @@ public class MainActivity extends Activity implements
     @Override
     public void hasToConfigure() {
         step = STEP_CONFIG;
+        Log.v("asf", "Asf");
         setFragment(ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
     }
 
@@ -128,5 +130,10 @@ public class MainActivity extends Activity implements
     public void onUnlink() {
         controller.unlink();
         controller.decideStep();
+    }
+
+    @Override
+    public void takeSample() {
+        controller.takeSample();
     }
 }

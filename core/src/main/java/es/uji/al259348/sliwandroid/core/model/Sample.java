@@ -36,14 +36,17 @@ public class Sample {
 
     }
 
+    private String id;
+    private String userId;
+    private String deviceId;
+    private String location;
     private Date date;
-    private Location location;
     private List<WifiScanResult> scanResults;
+    private boolean valid;
 
     public Sample() {
         super();
         this.date = new Date();
-        this.location = null;
         this.scanResults = new ArrayList<>();
     }
 
@@ -57,20 +60,44 @@ public class Sample {
         }
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public Date getDate() {
         return date;
     }
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
     }
 
     public List<WifiScanResult> getScanResults() {
@@ -81,12 +108,24 @@ public class Sample {
         this.scanResults = scanResults;
     }
 
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+
     @Override
     public String toString() {
         return "Sample{" +
-                "date=" + date +
-                ", location=" + location +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                ", location='" + location + '\'' +
+                ", date=" + date +
                 ", scanResults=" + scanResults +
+                ", valid=" + valid +
                 '}';
     }
 

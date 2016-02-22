@@ -24,8 +24,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Reconfigurar"
-        android:id="@+id/btnReconfigure"
+        android:text="Tomar muestra"
+        android:id="@+id/btnTakeSample"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

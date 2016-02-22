@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Date;
+import java.util.UUID;
 
 import es.uji.al259348.sliwandroid.core.services.MessagingService;
 import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
@@ -31,6 +32,11 @@ public class TakeSampleReceiver extends BroadcastReceiver {
         wifiService.performScan()
                 .doOnError(Throwable::printStackTrace)
                 .doOnNext(sample -> {
+
+                    sample.setId(UUID.randomUUID().toString());
+                    sample.setUserId("1");
+                    sample.setDeviceId(wifiService.getMacAddress());
+
                     Log.d("TakeSampleReceiver", "Sample: " + sample);
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();

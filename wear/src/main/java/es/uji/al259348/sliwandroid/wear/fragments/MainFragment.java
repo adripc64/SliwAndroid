@@ -54,6 +54,14 @@ public class MainFragment extends Fragment {
             }
         });
 
+        Button btnTakeSample = (Button) rootView.findViewById(R.id.btnTakeSample);
+        btnTakeSample.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.takeSample();
+            }
+        });
+
         return rootView;
     }
 
@@ -85,6 +93,7 @@ public class MainFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-         void onUnlink();
+        void onUnlink();
+        void takeSample();
     }
 }

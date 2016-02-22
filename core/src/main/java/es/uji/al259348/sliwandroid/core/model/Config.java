@@ -74,10 +74,10 @@ public class Config {
         this.steps = new ArrayList<>();
     }
 
-    public Config(List<Location> locations) {
+    public Config(User user) {
         super();
-        this.steps = new ArrayList<>(locations.size());
-        for (Location location : locations) {
+        this.steps = new ArrayList<>(user.getLocations().size());
+        for (Location location : user.getLocations()) {
             ConfigStep step = new ConfigStep(location);
             steps.add(step);
         }
@@ -96,6 +96,16 @@ public class Config {
         return "Config{" +
                 "steps=" + steps +
                 '}';
+    }
+
+    public List<Sample> getSamples() {
+        List<Sample> samples = new ArrayList<>();
+
+        for (ConfigStep step : steps) {
+            samples.addAll(step.samples);
+        }
+
+        return samples;
     }
 
 }

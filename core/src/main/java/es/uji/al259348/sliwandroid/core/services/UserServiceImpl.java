@@ -106,8 +106,8 @@ public class UserServiceImpl implements UserService {
     public Observable<Void> configureUser(User user, Config config) {
         return Observable.create(subscriber -> {
             try {
-                String topic = "user/" + user.getId() + "/configure";
-                String msg = objectMapper.writeValueAsString(config);
+                String topic = "user/" + user.getId() + "/configurar";
+                String msg = objectMapper.writeValueAsString(config.getSamples());
 
                 messagingService.publish(topic, msg)
                         .subscribeOn(Schedulers.newThread())
