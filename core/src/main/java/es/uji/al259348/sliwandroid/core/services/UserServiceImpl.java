@@ -95,10 +95,9 @@ public class UserServiceImpl implements UserService {
                             User user = objectMapper.readValue(s, User.class);
                             subscriber.onNext(user);
                         } catch (IOException e) {
-                            e.printStackTrace();
-                            subscriber.onError(e);
+                            subscriber.onError(new Throwable(s));
                         }
-                    });
+                    }, subscriber::onError);
         });
     }
 

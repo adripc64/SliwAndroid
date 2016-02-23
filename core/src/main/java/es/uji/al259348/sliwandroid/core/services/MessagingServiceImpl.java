@@ -64,6 +64,7 @@ public class MessagingServiceImpl implements MessagingService {
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
                             Log.d("MQTT", "Connection error! | " + Thread.currentThread().getName());
                             subscriber.onError(throwable);
+                            mqttClient.unregisterResources();
                         }
                     });
                 } catch (MqttException e) {
@@ -88,6 +89,7 @@ public class MessagingServiceImpl implements MessagingService {
                         public void onSuccess(IMqttToken iMqttToken) {
                             Log.d("MQTT", "Disconnected successfully! | " + Thread.currentThread().getName());
                             subscriber.onCompleted();
+                            mqttClient.unregisterResources();
                         }
 
                         @Override
@@ -198,6 +200,8 @@ public class MessagingServiceImpl implements MessagingService {
         return Observable.create(subscriber -> {
             Log.d("MQTT", "Requesting to topic: " + topic + " ... | " + Thread.currentThread().getName());
 
+            createClientFromContext();
+
             mqttClient.setCallback(new MqttCallback() {
                 @Override
                 public void connectionLost(Throwable throwable) {
@@ -225,7 +229,7 @@ public class MessagingServiceImpl implements MessagingService {
                     connectAction(),
                     subscribeAction(topic + "/response"),
                     publishAction(topic + "/request", msg)
-            ).doOnError(subscriber::onError).subscribe();
+            ).subscribe((s) -> {}, subscriber::onError);
 
         });
     }

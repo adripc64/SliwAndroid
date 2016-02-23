@@ -8,6 +8,8 @@ public interface MainView {
 
     Context getContext();
 
+    void onError(Throwable throwable);
+
     void hasToLink();
     void onUserLinked(User user);
 

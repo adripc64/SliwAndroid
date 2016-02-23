@@ -87,6 +87,12 @@ public class MainActivity extends Activity implements
     }
 
     @Override
+    public void onError(Throwable throwable) {
+        Toast.makeText(MainActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        controller.decideStep();
+    }
+
+    @Override
     public void hasToLink() {
         step = STEP_LINK;
         setFragment(ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
@@ -101,7 +107,6 @@ public class MainActivity extends Activity implements
     @Override
     public void hasToConfigure() {
         step = STEP_CONFIG;
-        Log.v("asf", "Asf");
         setFragment(ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
     }
 

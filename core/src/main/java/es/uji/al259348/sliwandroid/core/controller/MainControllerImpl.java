@@ -1,7 +1,6 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,8 +66,7 @@ public class MainControllerImpl implements MainController {
                 .subscribe(user -> {
                     userService.setCurrentLinkedUser(user);
                     mainView.onUserLinked(user);
-                    Log.v("AA", "bb");
-                });
+                }, mainView::onError);
     }
 
     @Override
