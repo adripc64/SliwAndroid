@@ -1,12 +1,14 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
+import es.uji.al259348.sliwandroid.core.model.Sample;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.AlarmService;
 import es.uji.al259348.sliwandroid.core.services.AlarmServiceImpl;
@@ -55,6 +57,7 @@ public class MainControllerImpl implements MainController {
     @Override
     public void onDestroy() {
         messagingService.onDestroy();
+        wifiService.onDestroy();
     }
 
     @Override
@@ -79,27 +82,29 @@ public class MainControllerImpl implements MainController {
     public void takeSample() {
         wifiService.performScan()
                 .doOnError(Throwable::printStackTrace)
-                .doOnNext(sample -> {
-
-                    sample.setId(UUID.randomUUID().toString());
-                    sample.setUserId("1");
-                    sample.setDeviceId(wifiService.getMacAddress());
-
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-
-                        String topic = "user/1/sample";
-                        String msg = objectMapper.writeValueAsString(sample);
-
-                        messagingService.publish(topic, msg)
-                                .doOnError(Throwable::printStackTrace)
-                                .subscribe();
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-
-                })
+                .doOnNext(this::processSample)
                 .subscribe();
+    }
+
+    private void processSample(Sample sample) {
+        Log.d("MainController", "processSample: " + sample.toString());
+
+//        sample.setId(UUID.randomUUID().toString());
+//        sample.setUserId("1");
+//        sample.setDeviceId(wifiService.getMacAddress());
+//
+//        try {
+//            ObjectMapper objectMapper = new ObjectMapper();
+//
+//            String topic = "user/1/sample";
+//            String msg = objectMapper.writeValueAsString(sample);
+//
+//            messagingService.publish(topic, msg)
+//                    .doOnError(Throwable::printStackTrace)
+//                    .subscribe();
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
     }
 
 }

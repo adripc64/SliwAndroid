@@ -13,7 +13,7 @@ import rx.Subscriber;
 
 public class WifiServiceImpl implements WifiService {
 
-    public class WifiScanReceiver extends BroadcastReceiver {
+    private class WifiScanReceiver extends BroadcastReceiver {
 
         private Subscriber<? super Sample> subscriber;
 
@@ -24,6 +24,7 @@ public class WifiServiceImpl implements WifiService {
         @Override
         public void onReceive(Context context, Intent intent) {
             context.unregisterReceiver(this);
+            wifiScanReceiver = null;
 
             Sample sample = new Sample(wifiManager.getScanResults());
             subscriber.onNext(sample);
@@ -33,10 +34,18 @@ public class WifiServiceImpl implements WifiService {
 
     private Context context;
     private WifiManager wifiManager;
+    private WifiScanReceiver wifiScanReceiver;
 
     public WifiServiceImpl(Context context) {
         this.context = context;
         this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (wifiScanReceiver != null) {
+            context.unregisterReceiver(wifiScanReceiver);
+        }
     }
 
     @Override
@@ -47,32 +56,33 @@ public class WifiServiceImpl implements WifiService {
             Log.d("isWifiEnabled", "" + isWifiEnabled);
 
             if (!isWifiEnabled) {
-
-                context.registerReceiver(new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-                        int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-                        Log.d("WifiChangeStateReceiver", "" + wifiState);
-
-                        if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
-                            context.unregisterReceiver(this);
-                            context.registerReceiver(
-                                    new WifiScanReceiver(subscriber),
-                                    new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-                            );
-
-                            boolean res = wifiManager.startScan();
-                            Log.d("WifiChangeStateReceiver", "startScanResult: " + res);
-                        }
-                    }
-                }, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
-
-                boolean res = wifiManager.setWifiEnabled(true);
-                Log.d("setWifiEnabled result", "" + res);
+                subscriber.onError(new Throwable("WiFi apagado..."));
+//                context.registerReceiver(new BroadcastReceiver() {
+//                    @Override
+//                    public void onReceive(Context context, Intent intent) {
+//                        int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+//                        Log.d("WifiChangeStateReceiver", "" + wifiState);
+//
+//                        if (wifiState == WifiManager.WIFI_STATE_ENABLED) {
+//                            context.unregisterReceiver(this);
+//                            context.registerReceiver(
+//                                    new WifiScanReceiver(subscriber),
+//                                    new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+//                            );
+//
+//                            boolean res = wifiManager.startScan();
+//                            Log.d("WifiChangeStateReceiver", "startScanResult: " + res);
+//                        }
+//                    }
+//                }, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
+//
+//                boolean res = wifiManager.setWifiEnabled(true);
+//                Log.d("setWifiEnabled result", "" + res);
 
             } else {
+                wifiScanReceiver = new WifiScanReceiver(subscriber);
                 context.registerReceiver(
-                        new WifiScanReceiver(subscriber),
+                        wifiScanReceiver,
                         new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
                 );
 
