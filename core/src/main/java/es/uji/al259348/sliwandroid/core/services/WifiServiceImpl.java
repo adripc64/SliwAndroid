@@ -8,7 +8,7 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
 
 import es.uji.al259348.sliwandroid.core.model.Sample;
 import rx.Observable;
@@ -34,19 +34,12 @@ public class WifiServiceImpl implements WifiService {
 
     private class WifiScanReceiver extends BroadcastReceiver {
 
-        private Subscriber<? super Sample> subscriber;
-
-        public WifiScanReceiver(Subscriber<? super Sample> subscriber) {
-            this.subscriber = subscriber;
-        }
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            unregisterReceiver(this);
-            wifiScanReceiver = null;
 
-            Sample sample = new Sample(wifiManager.getScanResults());
-            subscriber.onNext(sample);
+            Log.d("WifiScanReceiver", "Scan results available.");
+            onScanPerformed();
+
         }
 
     }
@@ -55,14 +48,16 @@ public class WifiServiceImpl implements WifiService {
     private WifiManager wifiManager;
 
     private WifiScanReceiver wifiScanReceiver;
+    private Queue<Subscriber<? super Sample>> wifiScanSubscribers;
 
     private WifiStateChangedReceiver wifiStateChangedReceiver;
-    private List<Subscriber> wifiStateChangedSubscribers;
+    private Queue<Subscriber> wifiStateChangedSubscribers;
 
     public WifiServiceImpl(Context context) {
         this.context = context;
         this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
+        this.wifiScanSubscribers = new LinkedList<>();
         this.wifiStateChangedSubscribers = new LinkedList<>();
     }
 
@@ -78,6 +73,11 @@ public class WifiServiceImpl implements WifiService {
             Log.d("WifiService", receiver.getClass().getSimpleName() + " unregistered.");
 
         }
+    }
+
+    @Override
+    public String getMacAddress() {
+        return wifiManager.getConnectionInfo().getMacAddress();
     }
 
     @Override
@@ -115,33 +115,60 @@ public class WifiServiceImpl implements WifiService {
         unregisterReceiver(wifiStateChangedReceiver);
         wifiStateChangedReceiver = null;
 
-        for (Subscriber subscriber : wifiStateChangedSubscribers) {
+        while (!wifiStateChangedSubscribers.isEmpty()) {
+            Subscriber subscriber = wifiStateChangedSubscribers.poll();
             subscriber.onCompleted();
         }
-        wifiStateChangedSubscribers.clear();
     }
 
     @Override
-    public Observable<Sample> performScan() {
+    public Observable<Sample> takeSample() {
         return Observable.create(subscriber -> {
 
-            enableWifi()
-                    .doOnCompleted(() -> {
-                        wifiScanReceiver = new WifiScanReceiver(subscriber);
-                        context.registerReceiver(
-                                wifiScanReceiver,
-                                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-                        );
-
-                        wifiManager.startScan();
-                    })
-                    .subscribe();
+            Log.d("WifiService", "It has been requested to take a sample.");
+            wifiScanSubscribers.add(subscriber);
+            if (wifiScanReceiver != null) {
+                Log.d("WifiService", "Another request to take a sample is in process, queueing this request.");
+            } else {
+                enableWifi()
+                        .doOnCompleted(this::performScan)
+                        .subscribe();
+            }
 
         });
     }
 
-    @Override
-    public String getMacAddress() {
-        return wifiManager.getConnectionInfo().getMacAddress();
+    private void performScan() {
+        Log.d("WifiService", "It has been requested to perform a Wifi scan.");
+
+        wifiScanReceiver = new WifiScanReceiver();
+        context.registerReceiver(
+                wifiScanReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        );
+        Log.d("WifiService", wifiScanReceiver.getClass().getSimpleName() + " registered.");
+
+        wifiManager.startScan();
+        Log.d("WifiService", "Performing a Wifi scan...");
     }
+
+    private void onScanPerformed() {
+        Log.d("WifiService", "The scan has been performed.");
+        unregisterReceiver(wifiScanReceiver);
+        wifiScanReceiver = null;
+
+        Sample sample = new Sample(wifiManager.getScanResults());
+
+        Subscriber<? super Sample> subscriber = wifiScanSubscribers.poll();
+        if (subscriber != null) {
+            Log.d("WifiService", "The sample has been taken.");
+            subscriber.onNext(sample);
+        }
+
+        if (!wifiScanSubscribers.isEmpty()) {
+            Log.d("WifiService", "The are requests to take a sample in the queue.");
+            performScan();
+        }
+    }
+
 }
