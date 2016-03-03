@@ -231,6 +231,14 @@ public class MessagingServiceImpl implements MessagingService {
                     publishAction(topic + "/request", msg)
             ).subscribe((s) -> {}, subscriber::onError);
 
+            try {
+                Thread.sleep(5000);
+                mqttClient.unregisterResources();
+                subscriber.onError(new Throwable("No es posible conectarse al servidor"));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         });
     }
 
