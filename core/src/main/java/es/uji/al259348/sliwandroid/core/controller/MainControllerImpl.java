@@ -3,11 +3,6 @@ package es.uji.al259348.sliwandroid.core.controller;
 import android.content.Context;
 import android.util.Log;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.UUID;
-
 import es.uji.al259348.sliwandroid.core.model.Sample;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.AlarmService;
@@ -80,7 +75,7 @@ public class MainControllerImpl implements MainController {
 
     @Override
     public void takeSample() {
-        wifiService.performScan()
+        wifiService.takeSample()
                 .doOnError(Throwable::printStackTrace)
                 .doOnNext(this::processSample)
                 .subscribe();

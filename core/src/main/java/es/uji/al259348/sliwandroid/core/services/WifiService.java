@@ -7,8 +7,9 @@ public interface WifiService {
 
     void onDestroy();
 
-    Observable<Void> enableWifi();
-    Observable<Sample> performScan();
     String getMacAddress();
+
+    Observable<Void> enableWifi();
+    Observable<Sample> takeSample();
 
 }

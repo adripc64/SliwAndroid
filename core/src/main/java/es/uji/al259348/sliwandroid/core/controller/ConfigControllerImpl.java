@@ -2,7 +2,6 @@ package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
 
-import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
 
@@ -65,7 +64,7 @@ public class ConfigControllerImpl implements ConfigController {
     }
 
     private void performScan() {
-        wifiService.performScan()
+        wifiService.takeSample()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onScanPerformed);
