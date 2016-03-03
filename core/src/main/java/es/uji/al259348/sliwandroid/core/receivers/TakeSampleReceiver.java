@@ -46,7 +46,15 @@ public class TakeSampleReceiver extends BroadcastReceiver {
 
                         messagingService.publish(topic, msg)
                                 .doOnError(Throwable::printStackTrace)
-                                .doOnCompleted(() -> Log.d("TakeSampleReceiver", "Sample published!"))
+                                .doOnCompleted(() -> {
+                                    Log.d("TakeSampleReceiver", "Sample published!");
+
+                                    // Send broadcast to request a the feedback process
+                                    Intent i = new Intent("es.uji.al259348.sliwandroid.FEEDBACK_REQUEST_ACTION");
+                                    i.putExtra("asdf", "AASDFFASDF");
+                                    context.sendBroadcast(i);
+
+                                })
                                 .subscribe();
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
