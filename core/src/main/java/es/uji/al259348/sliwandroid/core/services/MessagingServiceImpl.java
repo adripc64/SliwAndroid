@@ -13,35 +13,41 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.io.InterruptedIOException;
 import java.util.UUID;
 
 import es.uji.al259348.sliwandroid.core.R;
 import rx.Observable;
 
-public class MessagingServiceImpl implements MessagingService {
+public class MessagingServiceImpl extends AbstractService implements MessagingService {
 
-    private Context context;
+    public static final int DEFAULT_REQUEST_TIMEOUT = 5000;
 
     private MqttAndroidClient mqttClient;
     private MqttConnectOptions mqttConnectOptions;
 
     public MessagingServiceImpl(Context context) {
-        this.context = context;
+        super(context);
         createClientFromContext();
     }
 
     private void createClientFromContext() {
-        String brokerHost = context.getResources().getString(R.string.mqtt_broker_host);
-        String brokerUser = context.getResources().getString(R.string.mqtt_broker_user);
-        String brokerPass = context.getResources().getString(R.string.mqtt_broker_pass);
-        String clientId = context.getResources().getString(R.string.mqtt_client_id) + "-" + UUID.randomUUID().toString();
+        String brokerHost = getContext().getResources().getString(R.string.mqtt_broker_host);
+        String brokerUser = getContext().getResources().getString(R.string.mqtt_broker_user);
+        String brokerPass = getContext().getResources().getString(R.string.mqtt_broker_pass);
+        String clientId = getContext().getResources().getString(R.string.mqtt_client_id) + "-" + UUID.randomUUID().toString();
 
-        mqttClient = new MqttAndroidClient(context, brokerHost, clientId, new MemoryPersistence());
+        mqttClient = new MqttAndroidClient(getContext(), brokerHost, clientId, new MemoryPersistence());
 
         mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setCleanSession(true);
         mqttConnectOptions.setUserName(brokerUser);
         mqttConnectOptions.setPassword(brokerPass.toCharArray());
+    }
+
+    @Override
+    public void onDestroy() {
+        mqttClient.unregisterResources();
     }
 
     private Observable<Void> connectAction() {
@@ -182,11 +188,6 @@ public class MessagingServiceImpl implements MessagingService {
     }
 
     @Override
-    public void onDestroy() {
-        mqttClient.unregisterResources();
-    }
-
-    @Override
     public Observable<Void> publish(String topic, String msg) {
         return Observable.concat(
                 connectAction(),
@@ -195,22 +196,34 @@ public class MessagingServiceImpl implements MessagingService {
         );
     }
 
+    // Possible errores:
+    // 1. No está conectado a ninguna red (WiFi, Bluetooth, etc):
+    //      Unreachable network (ENETUNREACH) -> MqttException (32103) (No es posible conectarse al servidor)
+    // 2. Está conectado a una red diferente que el servidor:
+    //      Timeout -> InterruptedIOException (No es posible conectarse al servidor: tiempo de espera agotado.)
+    // 3. Está conectado a la misma red que el servidor, pero el servidor está caído (ip y/o puerto incorrectos?):
+    //      Timeout -> InterruptedIOException (No es posible conectarse al servidor: tiempo de espera agotado.)
+    // 4. Está conectado a la misma red que el servidor, pero este rechaza la conexión (ip y/o puerto incorrectos?)):
+    //      Connection refused (ECONNREFUSED) -> MqttException (32103) (No es posible conectarse al servidor)
+    // 5. Está conectado a la misma red que el servidor, se establece comunicación con broker pero no se recibe response del backend:
+    //      Timeout -> InterruptedIOException (No es posible conectarse al servidor: tiempo de espera agotado.)
     @Override
     public Observable<String> request(String topic, String msg) {
         return Observable.create(subscriber -> {
-            Log.d("MQTT", "Requesting to topic: " + topic + " ... | " + Thread.currentThread().getName());
+
+            Log.d("MessageService", "Requesting to topic: " + topic + " ... | " + Thread.currentThread().getName());
 
             createClientFromContext();
 
             mqttClient.setCallback(new MqttCallback() {
                 @Override
                 public void connectionLost(Throwable throwable) {
-
+                    Log.d("MessageService", "The connection has been lost while making a request! | " + Thread.currentThread().getName());
                 }
 
                 @Override
                 public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-                    Log.d("MQTT", "The response has been successfully received! | " + Thread.currentThread().getName());
+                    Log.d("MessageService", "The response has been successfully received! | " + Thread.currentThread().getName());
                     subscriber.onNext(new String(mqttMessage.getPayload()));
 
                     Observable.concat(
@@ -221,7 +234,7 @@ public class MessagingServiceImpl implements MessagingService {
 
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-                    Log.d("MQTT", "The request has been successfully delivered! | " + Thread.currentThread().getName());
+                    Log.d("MessageService", "The request has been successfully delivered! | " + Thread.currentThread().getName());
                 }
             });
 
@@ -232,11 +245,11 @@ public class MessagingServiceImpl implements MessagingService {
             ).subscribe((s) -> {}, subscriber::onError);
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(DEFAULT_REQUEST_TIMEOUT);
                 mqttClient.unregisterResources();
-                subscriber.onError(new Throwable("No es posible conectarse al servidor"));
+                subscriber.onError(new InterruptedIOException("No es posible conectarse al servidor: tiempo de espera agotado."));
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                subscriber.onError(e.getCause());
             }
 
         });
