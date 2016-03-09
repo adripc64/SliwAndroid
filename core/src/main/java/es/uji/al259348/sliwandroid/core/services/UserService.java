@@ -4,7 +4,7 @@ import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
 
-public interface UserService {
+public interface UserService extends Service {
 
     /**
      * Get the current linked user.
