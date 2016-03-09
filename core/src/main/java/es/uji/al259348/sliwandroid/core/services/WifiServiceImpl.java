@@ -14,7 +14,7 @@ import es.uji.al259348.sliwandroid.core.model.Sample;
 import rx.Observable;
 import rx.Subscriber;
 
-public class WifiServiceImpl implements WifiService {
+public class WifiServiceImpl extends AbstractService implements WifiService {
 
     private class WifiStateChangedReceiver extends BroadcastReceiver {
 
@@ -44,7 +44,6 @@ public class WifiServiceImpl implements WifiService {
 
     }
 
-    private Context context;
     private WifiManager wifiManager;
 
     private WifiScanReceiver wifiScanReceiver;
@@ -54,7 +53,7 @@ public class WifiServiceImpl implements WifiService {
     private Queue<Subscriber> wifiStateChangedSubscribers;
 
     public WifiServiceImpl(Context context) {
-        this.context = context;
+        super(context);
         this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
         this.wifiScanSubscribers = new LinkedList<>();
@@ -69,7 +68,7 @@ public class WifiServiceImpl implements WifiService {
 
     private void unregisterReceiver(BroadcastReceiver receiver) {
         if (receiver != null) {
-            context.unregisterReceiver(receiver);
+            getContext().unregisterReceiver(receiver);
             Log.d("WifiService", receiver.getClass().getSimpleName() + " unregistered.");
 
         }
@@ -96,7 +95,7 @@ public class WifiServiceImpl implements WifiService {
                     Log.d("WifiService", "Another request to enable the Wifi is in process.");
                 } else {
                     wifiStateChangedReceiver = new WifiStateChangedReceiver();
-                    context.registerReceiver(
+                    getContext().registerReceiver(
                             wifiStateChangedReceiver,
                             new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION)
                     );
@@ -142,7 +141,7 @@ public class WifiServiceImpl implements WifiService {
         Log.d("WifiService", "It has been requested to perform a Wifi scan.");
 
         wifiScanReceiver = new WifiScanReceiver();
-        context.registerReceiver(
+        getContext().registerReceiver(
                 wifiScanReceiver,
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         );
