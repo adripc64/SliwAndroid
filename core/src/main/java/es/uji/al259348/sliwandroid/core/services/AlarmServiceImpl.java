@@ -10,15 +10,15 @@ import android.util.Log;
 import es.uji.al259348.sliwandroid.core.R;
 import es.uji.al259348.sliwandroid.core.receivers.TakeSampleReceiver;
 
-public class AlarmServiceImpl implements AlarmService {
+public class AlarmServiceImpl extends AbstractService implements AlarmService {
 
-    private Context context;
     private AlarmManager alarmManager;
 
     private PendingIntent pendingIntentTakeSampleReceiver;
 
     public AlarmServiceImpl(Context context) {
-        this.context = context;
+        super(context);
+
         this.alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         Intent intentTakeSampleReceiver = new Intent(context, TakeSampleReceiver.class);
@@ -26,10 +26,15 @@ public class AlarmServiceImpl implements AlarmService {
     }
 
     @Override
+    public void onDestroy() {
+
+    }
+
+    @Override
     public void setTakeSampleAlarm() {
         Log.d("AlarmService", "Setting TakeSampleAlarm");
         long triggerAtMillis = SystemClock.elapsedRealtime();
-        long intervalMillis = 1000 * context.getResources().getInteger(R.integer.intervalTakeSampleAlarmInSeconds);
+        long intervalMillis = 1000 * getContext().getResources().getInteger(R.integer.intervalTakeSampleAlarmInSeconds);
 
         alarmManager.setRepeating(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
