@@ -6,6 +6,9 @@ import android.util.Log;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+
+import java.io.InterruptedIOException;
 import java.util.UUID;
 
 import es.uji.al259348.sliwandroid.core.model.Sample;
@@ -114,31 +117,31 @@ public class MainControllerImpl implements MainController {
             String msg = objectMapper.writeValueAsString(sample);
             Log.d("MainController", msg);
 
-//            Log.d("MainController", "processSample making a request");
-//            messagingService.request(topic, msg)
-//                    .subscribeOn(Schedulers.newThread())
-//                    .subscribe(
-//                            s -> Log.d("MainController", "processSample response: " + s),
-//                            throwable -> {
-//                                Log.d("MainController", throwable.getClass().getSimpleName());
-//                                Log.d("MainController", throwable.getLocalizedMessage());
-//                                throwable.printStackTrace();
-//
-//                                if (throwable instanceof InterruptedIOException) {
-//
-//                                }
-//                                if (throwable instanceof MqttException) {
-//
-//                                }
-//                                else {
-//
-//                                }
-//
-//                                Log.d("MainController", "Procedemos a guardar la muestra...");
-//
-//                            },
-//                            () -> Log.d("MainController", "processSample request completed!")
-//                    );
+            Log.d("MainController", "processSample making a request");
+            messagingService.request(topic, msg)
+                    .subscribeOn(Schedulers.newThread())
+                    .subscribe(
+                            s -> Log.d("MainController", "processSample response: " + s),
+                            throwable -> {
+                                Log.d("MainController", throwable.getClass().getSimpleName());
+                                Log.d("MainController", throwable.getLocalizedMessage());
+                                throwable.printStackTrace();
+
+                                if (throwable instanceof InterruptedIOException) {
+
+                                }
+                                if (throwable instanceof MqttException) {
+
+                                }
+                                else {
+
+                                }
+
+                                Log.d("MainController", "Procedemos a guardar la muestra...");
+
+                            },
+                            () -> Log.d("MainController", "processSample request completed!")
+                    );
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();
