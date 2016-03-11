@@ -49,6 +49,13 @@ public class MainControllerImpl implements MainController {
     }
 
     @Override
+    public void onDestroy() {
+        messagingService.onDestroy();
+        wifiService.onDestroy();
+        sampleService.onDestroy();
+    }
+
+    @Override
     public void decideStep() {
         User user = userService.getCurrentLinkedUser();
         if (user == null) {
@@ -59,13 +66,6 @@ public class MainControllerImpl implements MainController {
             alarmService.setTakeSampleAlarm();
             mainView.isOk();
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        messagingService.onDestroy();
-        wifiService.onDestroy();
-        sampleService.onDestroy();
     }
 
     @Override
