@@ -1,8 +1,6 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
-public interface MainController {
-
-    void onDestroy();
+public interface MainController extends Controller {
 
     void decideStep();
     void link();
