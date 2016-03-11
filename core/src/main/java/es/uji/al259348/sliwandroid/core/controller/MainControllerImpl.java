@@ -1,17 +1,24 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+
+import java.io.InterruptedIOException;
 import java.util.UUID;
 
+import es.uji.al259348.sliwandroid.core.model.Sample;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.AlarmService;
 import es.uji.al259348.sliwandroid.core.services.AlarmServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.MessagingService;
 import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.SampleService;
+import es.uji.al259348.sliwandroid.core.services.SampleServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.UserService;
 import es.uji.al259348.sliwandroid.core.services.UserServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.WifiService;
@@ -28,6 +35,7 @@ public class MainControllerImpl implements MainController {
     private UserService userService;
     private WifiService wifiService;
     private AlarmService alarmService;
+    private SampleService sampleService;
 
     public MainControllerImpl(MainView mainView) {
         this.mainView = mainView;
@@ -37,6 +45,7 @@ public class MainControllerImpl implements MainController {
         this.userService = new UserServiceImpl(context, messagingService);
         this.wifiService = new WifiServiceImpl(context);
         this.alarmService = new AlarmServiceImpl(context);
+        this.sampleService = new SampleServiceImpl(context);
     }
 
     @Override
@@ -55,6 +64,8 @@ public class MainControllerImpl implements MainController {
     @Override
     public void onDestroy() {
         messagingService.onDestroy();
+        wifiService.onDestroy();
+        sampleService.onDestroy();
     }
 
     @Override
@@ -77,29 +88,64 @@ public class MainControllerImpl implements MainController {
 
     @Override
     public void takeSample() {
-        wifiService.performScan()
-                .doOnError(Throwable::printStackTrace)
-                .doOnNext(sample -> {
-
-                    sample.setId(UUID.randomUUID().toString());
-                    sample.setUserId("1");
-                    sample.setDeviceId(wifiService.getMacAddress());
-
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-
-                        String topic = "user/1/sample";
-                        String msg = objectMapper.writeValueAsString(sample);
-
-                        messagingService.publish(topic, msg)
-                                .doOnError(Throwable::printStackTrace)
-                                .subscribe();
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-
-                })
+        Log.d("MainController", "It has been requested to take a sample.");
+        sampleService.take()
+                .doOnNext(this::onTakeSampleCompleted)
                 .subscribe();
+    }
+
+    private void onTakeSampleCompleted(Sample sample) {
+        Log.d("MainController", "The sample has been taken.");
+
+        sample.setId(UUID.randomUUID().toString());
+        sample.setUserId("1"); // userService.getCurrentLinkedUser().getId()
+        sample.setDeviceId(wifiService.getMacAddress());
+
+        saveSample(sample);
+    }
+
+    private void saveSample(Sample sample) {
+        Log.d("MainController", "The sample is gonna be saved.");
+        Log.d("MainController", sample.toString());
+
+        sampleService.save(sample);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String topic = "user/1/sample";
+            String msg = objectMapper.writeValueAsString(sample);
+            Log.d("MainController", msg);
+
+            Log.d("MainController", "processSample making a request");
+            messagingService.request(topic, msg)
+                    .subscribeOn(Schedulers.newThread())
+                    .subscribe(
+                            s -> Log.d("MainController", "processSample response: " + s),
+                            throwable -> {
+                                Log.d("MainController", throwable.getClass().getSimpleName());
+                                Log.d("MainController", throwable.getLocalizedMessage());
+                                throwable.printStackTrace();
+
+                                if (throwable instanceof InterruptedIOException) {
+
+                                }
+                                if (throwable instanceof MqttException) {
+
+                                }
+                                else {
+
+                                }
+
+                                Log.d("MainController", "Procedemos a guardar la muestra...");
+
+                            },
+                            () -> Log.d("MainController", "processSample request completed!")
+                    );
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -14,12 +14,10 @@ import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends AbstractService implements UserService {
 
     private static final String SHARED_PREFERENCES_NAME = "UserServiceSharedPreferences";
     private static final String SHARED_PREFERENCES_KEY_USER = "user";
-
-    private Context context;
 
     private MessagingService messagingService;
 
@@ -27,21 +25,26 @@ public class UserServiceImpl implements UserService {
     private SharedPreferences sharedPreferences;
 
     public UserServiceImpl(Context context) {
-        this.context = context;
+        super(context);
         this.messagingService = new MessagingServiceImpl(context);
         this.objectMapper = new ObjectMapper();
         this.sharedPreferences = getSharedPreferences();
     }
 
     public UserServiceImpl(Context context, MessagingService messagingService) {
-        this.context = context;
+        super(context);
         this.messagingService = messagingService;
         this.objectMapper = new ObjectMapper();
         this.sharedPreferences = getSharedPreferences();
     }
 
     private SharedPreferences getSharedPreferences() {
-        return context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        return getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void onDestroy() {
+
     }
 
     @Override

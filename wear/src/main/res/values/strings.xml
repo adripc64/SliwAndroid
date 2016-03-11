@@ -9,6 +9,7 @@
     <string name="configStartStepBtnText">OK</string>
 
     <string name="progressBarMsg">Espera sin moverte</string>
+    <string name="title_activity_feedback">SliwAndroid</string>
 
     <string-array name="numbers">
         <item>0</item>

@@ -29,7 +29,7 @@ public class TakeSampleReceiver extends BroadcastReceiver {
         MessagingService messagingService = new MessagingServiceImpl(context.getApplicationContext());
         WifiService wifiService = new WifiServiceImpl(context.getApplicationContext());
 
-        wifiService.performScan()
+        wifiService.takeSample()
                 .doOnError(Throwable::printStackTrace)
                 .doOnNext(sample -> {
 

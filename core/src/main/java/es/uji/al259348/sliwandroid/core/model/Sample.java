@@ -2,17 +2,36 @@ package es.uji.al259348.sliwandroid.core.model;
 
 import android.net.wifi.ScanResult;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+@DatabaseTable(tableName = "samples")
 public class Sample {
 
+    @DatabaseTable(tableName = "wifiScanResults")
     public static class WifiScanResult {
 
+        @DatabaseField(generatedId = true)
+        @JsonIgnore
+        public int id;
+        @DatabaseField
         public String SSID;
+        @DatabaseField
         public String BSSID;
+        @DatabaseField
         public int level;
+        @DatabaseField(foreign = true)
+        @JsonIgnore
+        public Sample sample;
 
         public WifiScanResult() {
             super();
@@ -36,12 +55,19 @@ public class Sample {
 
     }
 
+    @DatabaseField(id = true)
     private String id;
+    @DatabaseField
     private String userId;
+    @DatabaseField
     private String deviceId;
+    @DatabaseField
     private String location;
+    @DatabaseField
     private Date date;
-    private List<WifiScanResult> scanResults;
+    @ForeignCollectionField(eager = true)
+    private Collection<WifiScanResult> scanResults;
+    @DatabaseField
     private boolean valid;
 
     public Sample() {
@@ -100,11 +126,11 @@ public class Sample {
         this.date = date;
     }
 
-    public List<WifiScanResult> getScanResults() {
+    public Collection<WifiScanResult> getScanResults() {
         return scanResults;
     }
 
-    public void setScanResults(List<WifiScanResult> scanResults) {
+    public void setScanResults(Collection<WifiScanResult> scanResults) {
         this.scanResults = scanResults;
     }
 
@@ -124,7 +150,7 @@ public class Sample {
                 ", deviceId='" + deviceId + '\'' +
                 ", location='" + location + '\'' +
                 ", date=" + date +
-                ", scanResults=" + scanResults +
+                ", scanResults=" + Arrays.toString(scanResults.toArray()) +
                 ", valid=" + valid +
                 '}';
     }
