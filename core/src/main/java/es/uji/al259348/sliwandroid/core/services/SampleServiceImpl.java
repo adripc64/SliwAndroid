@@ -5,6 +5,7 @@ import android.util.Log;
 
 import es.uji.al259348.sliwandroid.core.model.Sample;
 import es.uji.al259348.sliwandroid.core.repositories.sqlite.SQLiteSampleRepository;
+import rx.Observable;
 
 public class SampleServiceImpl extends AbstractService implements SampleService {
 
@@ -23,6 +24,11 @@ public class SampleServiceImpl extends AbstractService implements SampleService 
     @Override
     public void onDestroy() {
         this.sampleRepository.onDestroy();
+    }
+
+    @Override
+    public Observable<Sample> take() {
+        return wifiService.takeSample();
     }
 
     @Override
