@@ -1,10 +1,6 @@
 package es.uji.al259348.sliwandroid.core.view;
 
-import android.content.Context;
-
-public interface ConfigView {
-
-    Context getContext();
+public interface ConfigView extends View {
 
     void onNextStep(String msg);
     void onStepProgressUpdated(int progress);
