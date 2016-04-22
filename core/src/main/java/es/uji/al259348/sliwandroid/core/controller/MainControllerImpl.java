@@ -98,7 +98,7 @@ public class MainControllerImpl implements MainController {
         Log.d("MainController", "The sample has been taken.");
 
         sample.setId(UUID.randomUUID().toString());
-        sample.setUserId("1"); // userService.getCurrentLinkedUser().getId()
+        sample.setUserId(userService.getCurrentLinkedUser().getId());
         sample.setDeviceId(wifiService.getMacAddress());
 
         saveSample(sample);
