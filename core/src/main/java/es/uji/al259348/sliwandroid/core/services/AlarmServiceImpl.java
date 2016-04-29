@@ -8,7 +8,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import es.uji.al259348.sliwandroid.core.R;
-import es.uji.al259348.sliwandroid.core.receivers.TakeSampleReceiver;
+import es.uji.al259348.sliwandroid.core.android.receivers.TakeSampleReceiver;
 
 public class AlarmServiceImpl extends AbstractService implements AlarmService {
 

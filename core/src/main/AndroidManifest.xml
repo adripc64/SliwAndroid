@@ -19,14 +19,11 @@
 
         <!-- Receivers -->
         <receiver
-            android:name=".receivers.TakeSampleReceiver"
-            android:enabled="true">
-        </receiver>
-
+            android:name=".android.receivers.TakeSampleReceiver"
+            android:enabled="true"></receiver>
         <receiver
-            android:name=".receivers.BootCompletedReceiver"
+            android:name=".android.receivers.BootCompletedReceiver"
             android:enabled="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
