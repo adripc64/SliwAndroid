@@ -11,10 +11,13 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import java.io.InterruptedIOException;
 import java.util.UUID;
 
+import es.uji.al259348.sliwandroid.core.model.Device;
 import es.uji.al259348.sliwandroid.core.model.Sample;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.AlarmService;
 import es.uji.al259348.sliwandroid.core.services.AlarmServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.DeviceService;
+import es.uji.al259348.sliwandroid.core.services.DeviceServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.MessagingService;
 import es.uji.al259348.sliwandroid.core.services.MessagingServiceImpl;
 import es.uji.al259348.sliwandroid.core.services.SampleService;
@@ -32,6 +35,7 @@ public class MainControllerImpl implements MainController {
     private MainView mainView;
 
     private MessagingService messagingService;
+    private DeviceService deviceService;
     private UserService userService;
     private WifiService wifiService;
     private AlarmService alarmService;
@@ -42,6 +46,7 @@ public class MainControllerImpl implements MainController {
 
         Context context = mainView.getContext();
         this.messagingService = new MessagingServiceImpl(context);
+        this.deviceService = new DeviceServiceImpl(context, messagingService);
         this.userService = new UserServiceImpl(context, messagingService);
         this.wifiService = new WifiServiceImpl(context);
         this.alarmService = new AlarmServiceImpl(context);
@@ -58,7 +63,10 @@ public class MainControllerImpl implements MainController {
     @Override
     public void decideStep() {
         User user = userService.getCurrentLinkedUser();
-        if (user == null) {
+
+        if (!deviceService.isCurrentDeviceRegistered()) {
+            mainView.hasToRegisterDevice();
+        } else if (user == null) {
             mainView.hasToLink();
         } else if (!user.isConfigured()) {
             mainView.hasToConfigure();
@@ -66,6 +74,16 @@ public class MainControllerImpl implements MainController {
             alarmService.setTakeSampleAlarm();
             mainView.isOk();
         }
+    }
+
+    @Override
+    public void registerDevice() {
+        deviceService.registerCurrentDevice()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(device -> {
+                    mainView.onDeviceRegistered(device);
+                }, mainView::onError);
     }
 
     @Override

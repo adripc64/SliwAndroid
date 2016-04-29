@@ -9,11 +9,15 @@ import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import es.uji.al259348.sliwandroid.core.controller.MainController;
 import es.uji.al259348.sliwandroid.core.controller.MainControllerImpl;
+import es.uji.al259348.sliwandroid.core.model.Device;
 import es.uji.al259348.sliwandroid.core.model.User;
+import es.uji.al259348.sliwandroid.core.services.DeviceService;
+import es.uji.al259348.sliwandroid.core.services.DeviceServiceImpl;
 import es.uji.al259348.sliwandroid.core.view.MainView;
 import es.uji.al259348.sliwandroid.wear.R;
 import es.uji.al259348.sliwandroid.wear.fragments.ConfirmFragment;
@@ -25,6 +29,7 @@ public class MainActivity extends Activity implements
         MainFragment.OnFragmentInteractionListener,
         ConfirmFragment.OnFragmentInteractionListener {
 
+    private static final String STEP_REGISTER_DEVICE = "stepRegisterDevice";
     private static final String STEP_LINK = "stepLink";
     private static final String STEP_CONFIG = "StepConfig";
     private static final String STEP_OK = "stepOk";
@@ -46,6 +51,14 @@ public class MainActivity extends Activity implements
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
+
+                DeviceService deviceService = new DeviceServiceImpl(stub.getContext());
+                String id = deviceService.getId();
+                deviceService.onDestroy();
+
+                TextView textViewId = (TextView) stub.findViewById(R.id.id);
+                textViewId.setText(id);
+
                 fragmentContent = stub.findViewById(R.id.fragmentContent);
                 controller.decideStep();
             }
@@ -93,6 +106,18 @@ public class MainActivity extends Activity implements
     }
 
     @Override
+    public void hasToRegisterDevice() {
+        step = STEP_REGISTER_DEVICE;
+        setFragment(ConfirmFragment.newInstance("Es necesario registrar el dispositivo.", "Ok"));
+    }
+
+    @Override
+    public void onDeviceRegistered(Device device) {
+        Toast.makeText(MainActivity.this, "El dispositivo ha sido registrado.", Toast.LENGTH_SHORT).show();
+        controller.decideStep();
+    }
+
+    @Override
     public void hasToLink() {
         step = STEP_LINK;
         setFragment(ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
@@ -119,6 +144,10 @@ public class MainActivity extends Activity implements
     @Override
     public void onConfirm() {
         switch (step) {
+            case STEP_REGISTER_DEVICE:
+                setFragment(LoadingFragment.newInstance("Registrando dispositivo..."));
+                controller.registerDevice();
+
             case STEP_LINK:
                 setFragment(LoadingFragment.newInstance("Vinculando..."));
                 controller.link();

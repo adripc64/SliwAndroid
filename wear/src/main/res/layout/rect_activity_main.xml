@@ -8,6 +8,14 @@
     tools:deviceIds="wear_square"
     android:gravity="center">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="id"
+        android:textAlignment="center"
+        android:id="@+id/id"
+        android:padding="2dp" />
+
     <FrameLayout
         android:id="@+id/fragmentContent"
         android:layout_width="match_parent"
