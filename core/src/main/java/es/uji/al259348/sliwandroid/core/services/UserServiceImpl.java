@@ -19,6 +19,9 @@ public class UserServiceImpl extends AbstractService implements UserService {
     private static final String SHARED_PREFERENCES_NAME = "UserServiceSharedPreferences";
     private static final String SHARED_PREFERENCES_KEY_USER = "user";
 
+    private static final String MESSAGING_CONFIGURE_REQUEST_TOPIC = "users/%s/configure";
+    private static final String MESSAGING_REGISTER_RESPONSE_OK = "200 OK";
+
     private MessagingService messagingService;
 
     private ObjectMapper objectMapper;
@@ -113,18 +116,26 @@ public class UserServiceImpl extends AbstractService implements UserService {
     @Override
     public Observable<Void> configureUser(User user, Config config) {
         return Observable.create(subscriber -> {
+
             try {
-                String topic = "user/" + user.getId() + "/configure";
                 String msg = objectMapper.writeValueAsString(config.getSamples());
 
-                messagingService.publish(topic, msg)
+                String topic = String.format(MESSAGING_CONFIGURE_REQUEST_TOPIC, user.getId());
+                messagingService.request(topic, msg)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(Schedulers.newThread())
-                        .subscribe(subscriber);
+                        .subscribe(response -> {
+                            if (response.equals(MESSAGING_REGISTER_RESPONSE_OK)) {
+                                subscriber.onCompleted();
+                            } else {
+                                subscriber.onError(new Throwable(response));
+                            }
+                        }, subscriber::onError);
 
             } catch (JsonProcessingException e) {
-                subscriber.onError(e);
+                e.printStackTrace();
             }
+
         });
     }
 
