@@ -131,7 +131,7 @@ public class MainControllerImpl implements MainController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
-            String topic = "user/" + userService.getCurrentLinkedUserId() + "/sample";
+            String topic = "samples/" + sample.getId() + "/save";
             String msg = objectMapper.writeValueAsString(sample);
             Log.d("MainController", msg);
 
