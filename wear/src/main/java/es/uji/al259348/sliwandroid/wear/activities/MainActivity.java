@@ -51,14 +51,6 @@ public class MainActivity extends Activity implements
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-
-                DeviceService deviceService = new DeviceServiceImpl(stub.getContext());
-                String id = deviceService.getId();
-                deviceService.onDestroy();
-
-                TextView textViewId = (TextView) stub.findViewById(R.id.id);
-                textViewId.setText(id);
-
                 fragmentContent = stub.findViewById(R.id.fragmentContent);
                 controller.decideStep();
             }
@@ -147,6 +139,7 @@ public class MainActivity extends Activity implements
             case STEP_REGISTER_DEVICE:
                 setFragment(LoadingFragment.newInstance("Registrando dispositivo..."));
                 controller.registerDevice();
+                break;
 
             case STEP_LINK:
                 setFragment(LoadingFragment.newInstance("Vinculando..."));
