@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.util.UUID;
 
 import es.uji.al259348.sliwandroid.core.model.Device;
+import es.uji.al259348.sliwandroid.core.model.Installation;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 public class DeviceServiceImpl extends AbstractService implements DeviceService {
 
     private static final String SHARED_PREFERENCES_FILENAME = "DeviceServiceSharedPreferences";
-    private static final String SHARED_PREFERENCES_KEY_DEVICE_ID = "deviceId";
     private static final String SHARED_PREFERENCES_KEY_CURRENT_DEVICE = "currentDevice";
 
     private static final String MESSAGING_REGISTER_REQUEST_TOPIC = "devices/register";
@@ -26,8 +26,6 @@ public class DeviceServiceImpl extends AbstractService implements DeviceService 
 
     private ObjectMapper objectMapper;
     private SharedPreferences sharedPreferences;
-
-    private String id;
 
     public DeviceServiceImpl(Context context) {
         super(context);
@@ -49,19 +47,7 @@ public class DeviceServiceImpl extends AbstractService implements DeviceService 
 
     @Override
     public String getId() {
-        if (id == null || id.isEmpty()) {
-            id = sharedPreferences.getString(SHARED_PREFERENCES_KEY_DEVICE_ID, "");
-
-            if (id.isEmpty()) {
-                id = UUID.randomUUID().toString();
-
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(SHARED_PREFERENCES_KEY_DEVICE_ID, id);
-                editor.apply();
-            }
-        }
-
-        return id;
+        return Installation.getId(getContext());
     }
 
     @Override
@@ -109,7 +95,7 @@ public class DeviceServiceImpl extends AbstractService implements DeviceService 
     public Observable<Device> registerCurrentDevice() {
         return Observable.create(subscriber -> {
 
-            String id = UUID.randomUUID().toString();
+            String id = getId();
 
             Device device = new Device();
             device.setId(id);
