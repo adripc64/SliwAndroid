@@ -21,6 +21,13 @@ public interface UserService extends Service {
      */
     boolean setCurrentLinkedUser(User user);
 
+    /**
+     * Get the current linked user.
+     *
+     * @return Returns the current linked user id or and empty string if there isn't.
+     */
+    String getCurrentLinkedUserId();
+
     Observable<User> getUserLinkedTo(String deviceId);
     Observable<Void> configureUser(User user, Config config);
 

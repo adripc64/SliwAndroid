@@ -85,6 +85,12 @@ public class UserServiceImpl extends AbstractService implements UserService {
     }
 
     @Override
+    public String getCurrentLinkedUserId() {
+        User user = getCurrentLinkedUser();
+        return (user == null) ? "" : user.getId();
+    }
+
+    @Override
     public Observable<User> getUserLinkedTo(final String deviceId) {
         return Observable.create(subscriber -> {
             String topic = "devices/" + deviceId + "/user";
