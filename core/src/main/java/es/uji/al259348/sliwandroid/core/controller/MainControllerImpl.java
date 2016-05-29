@@ -88,14 +88,14 @@ public class MainControllerImpl implements MainController {
 
     @Override
     public void link() {
-        String macAdress = wifiService.getMacAddress();
-        userService.getUserLinkedTo(macAdress)
+        String deviceId = deviceService.getId();
+        userService.getUserLinkedTo(deviceId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(user -> {
                     userService.setCurrentLinkedUser(user);
                     mainView.onUserLinked(user);
-                }, mainView::onError);
+                }, this::handleError);
     }
 
     @Override
@@ -164,6 +164,10 @@ public class MainControllerImpl implements MainController {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleError(Throwable throwable) {
+        mainView.onError(throwable);
     }
 
 }
