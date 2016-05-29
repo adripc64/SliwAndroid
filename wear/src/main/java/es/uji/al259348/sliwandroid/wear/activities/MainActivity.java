@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,12 +22,14 @@ import es.uji.al259348.sliwandroid.core.services.DeviceServiceImpl;
 import es.uji.al259348.sliwandroid.core.view.MainView;
 import es.uji.al259348.sliwandroid.wear.R;
 import es.uji.al259348.sliwandroid.wear.fragments.ConfirmFragment;
+import es.uji.al259348.sliwandroid.wear.fragments.InfoFragment;
 import es.uji.al259348.sliwandroid.wear.fragments.LoadingFragment;
 import es.uji.al259348.sliwandroid.wear.fragments.MainFragment;
 
 public class MainActivity extends Activity implements
         MainView,
         MainFragment.OnFragmentInteractionListener,
+        InfoFragment.OnFragmentInteractionListener,
         ConfirmFragment.OnFragmentInteractionListener {
 
     private static final String STEP_REGISTER_DEVICE = "stepRegisterDevice";
@@ -37,6 +40,7 @@ public class MainActivity extends Activity implements
 
     private MainController controller;
     private View fragmentContent;
+    private View btnInfo;
 
     private String step;
 
@@ -51,6 +55,10 @@ public class MainActivity extends Activity implements
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
+
+                btnInfo = stub.findViewById(R.id.btnInfo);
+                btnInfo.setOnClickListener(v -> btnInfoClickListener(v));
+
                 fragmentContent = stub.findViewById(R.id.fragmentContent);
                 controller.decideStep();
             }
@@ -162,5 +170,20 @@ public class MainActivity extends Activity implements
     @Override
     public void takeSample() {
         controller.takeSample();
+    }
+
+    public void btnInfoClickListener(View view) {
+        DeviceService deviceService = new DeviceServiceImpl(this);
+        String deviceId = deviceService.getId();
+        deviceService.onDestroy();
+
+        btnInfo.setVisibility(View.INVISIBLE);
+        setFragment(InfoFragment.newInstance(deviceId, "-"));
+    }
+
+    @Override
+    public void closeInfo() {
+        btnInfo.setVisibility(View.VISIBLE);
+        controller.decideStep();
     }
 }
