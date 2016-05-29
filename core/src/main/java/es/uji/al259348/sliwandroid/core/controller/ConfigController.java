@@ -4,5 +4,6 @@ public interface ConfigController extends Controller {
 
     void startConfig();
     void startStep();
+    void saveConfig();
 
 }

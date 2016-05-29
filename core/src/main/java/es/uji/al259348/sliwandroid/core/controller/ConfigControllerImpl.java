@@ -63,6 +63,15 @@ public class ConfigControllerImpl implements ConfigController {
         performScan();
     }
 
+    @Override
+    public void saveConfig() {
+        userService.configureUser(user, config)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aVoid -> {
+                }, this::handleError, this::onConfigFinished);
+    }
+
     private void performScan() {
         wifiService.takeSample()
                 .subscribeOn(Schedulers.newThread())
@@ -95,11 +104,7 @@ public class ConfigControllerImpl implements ConfigController {
             currentStep = configStepsIter.next();
             configView.onNextStep(currentStep.getLocation().getConfigMsg());
         } else {
-            userService.configureUser(user, config)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(aVoid -> {
-                    }, Throwable::printStackTrace, this::onConfigFinished);
+            configView.onAllStepsFinished();
         }
     }
 
@@ -107,6 +112,10 @@ public class ConfigControllerImpl implements ConfigController {
         user.setConfigured(true);
         userService.setCurrentLinkedUser(user);
         configView.onConfigFinished();
+    }
+
+    private void handleError(Throwable throwable) {
+        configView.onError(throwable);
     }
 
 }

@@ -108,7 +108,7 @@ public class UserServiceImpl extends AbstractService implements UserService {
     public Observable<Void> configureUser(User user, Config config) {
         return Observable.create(subscriber -> {
             try {
-                String topic = "user/" + user.getId() + "/configurar";
+                String topic = "user/" + user.getId() + "/configure";
                 String msg = objectMapper.writeValueAsString(config.getSamples());
 
                 messagingService.publish(topic, msg)

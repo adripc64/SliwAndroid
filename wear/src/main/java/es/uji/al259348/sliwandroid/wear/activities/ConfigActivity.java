@@ -8,11 +8,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.view.View;
+import android.widget.Toast;
 
 import es.uji.al259348.sliwandroid.core.controller.ConfigController;
 import es.uji.al259348.sliwandroid.core.controller.ConfigControllerImpl;
 import es.uji.al259348.sliwandroid.core.view.ConfigView;
 import es.uji.al259348.sliwandroid.wear.R;
+import es.uji.al259348.sliwandroid.wear.fragments.LoadingFragment;
 import es.uji.al259348.sliwandroid.wear.fragments.ProgressBarFragment;
 import es.uji.al259348.sliwandroid.wear.fragments.ConfirmFragment;
 
@@ -22,6 +24,7 @@ public class ConfigActivity extends Activity implements
 
     private static final String STEP_CONFIRM_START_CONFIG = "startConfig";
     private static final String STEP_CONFIRM_START_STEP = "startStep";
+    private static final String STEP_CONFIRM_SAVE_CONFIG = "saveConfig";
 
     private ConfigController configController;
 
@@ -69,6 +72,13 @@ public class ConfigActivity extends Activity implements
     }
 
     @Override
+    public void onError(Throwable throwable) {
+        Toast.makeText(ConfigActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        if (step.equals(STEP_CONFIRM_SAVE_CONFIG))
+            onAllStepsFinished();
+    }
+
+    @Override
     public void onNextStep(String msg) {
         step = STEP_CONFIRM_START_STEP;
         String btnText = getString(R.string.configStartStepBtnText);
@@ -80,6 +90,14 @@ public class ConfigActivity extends Activity implements
         if (progressBarFragment != null) {
             progressBarFragment.updateProgress(progress);
         }
+    }
+
+    @Override
+    public void onAllStepsFinished() {
+        step = STEP_CONFIRM_SAVE_CONFIG;
+        String msg = "Configuración terminada.";
+        String btnText = "Guardar";
+        setFragment(ConfirmFragment.newInstance(msg, btnText));
     }
 
     @Override
@@ -100,6 +118,11 @@ public class ConfigActivity extends Activity implements
                 progressBarFragment = ProgressBarFragment.newInstance();
                 setFragment(progressBarFragment);
                 configController.startStep();
+                break;
+
+            case STEP_CONFIRM_SAVE_CONFIG:
+                setFragment(LoadingFragment.newInstance("Guardando configuración..."));
+                configController.saveConfig();
                 break;
         }
     }
