@@ -19,6 +19,8 @@ import es.uji.al259348.sliwandroid.core.model.Device;
 import es.uji.al259348.sliwandroid.core.model.User;
 import es.uji.al259348.sliwandroid.core.services.DeviceService;
 import es.uji.al259348.sliwandroid.core.services.DeviceServiceImpl;
+import es.uji.al259348.sliwandroid.core.services.UserService;
+import es.uji.al259348.sliwandroid.core.services.UserServiceImpl;
 import es.uji.al259348.sliwandroid.core.view.MainView;
 import es.uji.al259348.sliwandroid.wear.R;
 import es.uji.al259348.sliwandroid.wear.fragments.ConfirmFragment;
@@ -177,8 +179,12 @@ public class MainActivity extends Activity implements
         String deviceId = deviceService.getId();
         deviceService.onDestroy();
 
+        UserService userService = new UserServiceImpl(this);
+        String userId = userService.getCurrentLinkedUserId();
+        userService.onDestroy();
+
         btnInfo.setVisibility(View.INVISIBLE);
-        setFragment(InfoFragment.newInstance(deviceId, "-"));
+        setFragment(InfoFragment.newInstance(deviceId, (userId.isEmpty()) ? "-" : userId));
     }
 
     @Override
