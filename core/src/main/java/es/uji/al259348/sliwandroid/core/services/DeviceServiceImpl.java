@@ -19,7 +19,7 @@ public class DeviceServiceImpl extends AbstractService implements DeviceService 
     private static final String SHARED_PREFERENCES_FILENAME = "DeviceServiceSharedPreferences";
     private static final String SHARED_PREFERENCES_KEY_CURRENT_DEVICE = "currentDevice";
 
-    private static final String MESSAGING_REGISTER_REQUEST_TOPIC = "devices/register";
+    private static final String MESSAGING_REGISTER_REQUEST_TOPIC = "devices/%s/register";
     private static final String MESSAGING_REGISTER_RESPONSE_OK = "200 OK";
 
     private MessagingService messagingService;
@@ -95,10 +95,10 @@ public class DeviceServiceImpl extends AbstractService implements DeviceService 
     public Observable<Device> registerCurrentDevice() {
         return Observable.create(subscriber -> {
 
-            String id = getId();
+            String deviceId = getId();
 
             Device device = new Device();
-            device.setId(id);
+            device.setId(deviceId);
 
             String msg = "";
             try {
@@ -107,7 +107,8 @@ public class DeviceServiceImpl extends AbstractService implements DeviceService 
                 subscriber.onError(e);
             }
 
-            messagingService.request(MESSAGING_REGISTER_REQUEST_TOPIC, msg)
+            String topic = String.format(MESSAGING_REGISTER_REQUEST_TOPIC, deviceId);
+            messagingService.request(topic, msg)
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(Schedulers.newThread())
                     .subscribe(response -> {
