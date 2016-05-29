@@ -116,8 +116,8 @@ public class MainControllerImpl implements MainController {
         Log.d("MainController", "The sample has been taken.");
 
         sample.setId(UUID.randomUUID().toString());
-        sample.setUserId(userService.getCurrentLinkedUser().getId());
-        sample.setDeviceId(wifiService.getMacAddress());
+        sample.setUserId(userService.getCurrentLinkedUserId());
+        sample.setDeviceId(deviceService.getId());
 
         saveSample(sample);
     }
@@ -131,7 +131,7 @@ public class MainControllerImpl implements MainController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
-            String topic = "user/1/sample";
+            String topic = "user/" + userService.getCurrentLinkedUserId() + "/sample";
             String msg = objectMapper.writeValueAsString(sample);
             Log.d("MainController", msg);
 
