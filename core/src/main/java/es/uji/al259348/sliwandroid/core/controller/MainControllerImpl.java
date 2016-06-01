@@ -124,48 +124,23 @@ public class MainControllerImpl implements MainController {
     }
 
     private void saveSample(Sample sample) {
-        Log.d("MainController", "The sample is gonna be saved.");
+        Log.d("MainController", "The sample is gonna be published or saved locally.");
         Log.d("MainController", sample.toString());
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            String topic = "samples/" + sample.getId() + "/save";
-            String msg = objectMapper.writeValueAsString(sample);
-
-            Log.d("MainController", "Trying to publish the sample.");
-            messagingService.request(topic, msg)
-                    .subscribeOn(Schedulers.newThread())
-                    .subscribe(
-                            s -> {
-                                Log.d("MainController", "The sample has been published (next)");
-                            },
-                            throwable -> {
-                                Log.d("MainController", throwable.getClass().getSimpleName());
-                                Log.d("MainController", throwable.getLocalizedMessage());
-                                throwable.printStackTrace();
-                                Log.d("MainController", "The sample couldn't be published.");
-                                sampleService.save(sample);
-
-//                                if (throwable instanceof InterruptedIOException) {
-//
-//                                }
-//                                if (throwable instanceof MqttException) {
-//
-//                                }
-//                                else {
-//
-//                                }
-//
-//                                Log.d("MainController", "Procedemos a guardar la muestra...");
-
-                            },
-                            () -> Log.d("MainController", "The sample has been published (completed)")
-                    );
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        sampleService.publish(sample)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.newThread())
+                .subscribe(
+                        response -> {
+                            Log.d("MainController", "The sample has been published (next)");
+                        },
+                        throwable -> {
+                            Log.d("MainController", "The sample couldn't be published.");
+                            Log.d("MainController", "Storing the sample locally...");
+                            sampleService.save(sample);
+                        },
+                        () -> Log.d("MainController", "The sample has been published (completed)")
+                );
     }
 
     private void handleError(Throwable throwable) {
