@@ -16,16 +16,26 @@
 
         <!-- Services -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
+        <service
+            android:name=".android.services.PublishSamplesService"
+            android:exported="false" />
 
         <!-- Receivers -->
         <receiver
             android:name=".android.receivers.TakeSampleReceiver"
-            android:enabled="true"></receiver>
+            android:enabled="true" />
         <receiver
             android:name=".android.receivers.BootCompletedReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".android.receivers.ConnectivityChangeReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
 
