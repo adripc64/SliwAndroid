@@ -120,6 +120,7 @@ public class MainControllerImpl implements MainController {
         sample.setDeviceId(deviceService.getId());
 
         saveSample(sample);
+        mainView.onTakeSampleCompleted();
     }
 
     private void saveSample(Sample sample) {

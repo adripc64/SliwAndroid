@@ -171,7 +171,14 @@ public class MainActivity extends Activity implements
 
     @Override
     public void takeSample() {
+        setFragment(LoadingFragment.newInstance("Tomando muestra..."));
         controller.takeSample();
+    }
+
+    @Override
+    public void onTakeSampleCompleted() {
+        Toast.makeText(MainActivity.this, "Muestra tomada.", Toast.LENGTH_SHORT).show();
+        controller.decideStep();
     }
 
     public void btnInfoClickListener(View view) {

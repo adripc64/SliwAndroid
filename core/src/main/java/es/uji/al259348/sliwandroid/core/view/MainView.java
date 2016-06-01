@@ -16,4 +16,5 @@ public interface MainView extends View {
 
     void isOk();
 
+    void onTakeSampleCompleted();
 }
