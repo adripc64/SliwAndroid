@@ -1,11 +1,13 @@
 package es.uji.al259348.sliwandroid.core.repositories.sqlite;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import es.uji.al259348.sliwandroid.core.model.Sample;
@@ -39,6 +41,17 @@ public class SQLiteSampleRepository implements SampleRepository {
         sample.setScanResults(scanResults);
 
         return sample;
+    }
+
+    @Override
+    public void remove(Sample sample) {
+        int rowsUpdated = dao.delete(sample);
+        Log.d("SampleRepo", "Resultado eliminar muestra: " + rowsUpdated);
+    }
+
+    @Override
+    public long count() {
+        return dao.countOf();
     }
 
     @Override
