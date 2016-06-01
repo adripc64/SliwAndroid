@@ -127,39 +127,40 @@ public class MainControllerImpl implements MainController {
         Log.d("MainController", "The sample is gonna be saved.");
         Log.d("MainController", sample.toString());
 
-        sampleService.save(sample);
-
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
             String topic = "samples/" + sample.getId() + "/save";
             String msg = objectMapper.writeValueAsString(sample);
-            Log.d("MainController", msg);
 
-            Log.d("MainController", "processSample making a request");
+            Log.d("MainController", "Trying to publish the sample.");
             messagingService.request(topic, msg)
                     .subscribeOn(Schedulers.newThread())
                     .subscribe(
-                            s -> Log.d("MainController", "processSample response: " + s),
+                            s -> {
+                                Log.d("MainController", "The sample has been published (next)");
+                            },
                             throwable -> {
                                 Log.d("MainController", throwable.getClass().getSimpleName());
                                 Log.d("MainController", throwable.getLocalizedMessage());
                                 throwable.printStackTrace();
+                                Log.d("MainController", "The sample couldn't be published.");
+                                sampleService.save(sample);
 
-                                if (throwable instanceof InterruptedIOException) {
-
-                                }
-                                if (throwable instanceof MqttException) {
-
-                                }
-                                else {
-
-                                }
-
-                                Log.d("MainController", "Procedemos a guardar la muestra...");
+//                                if (throwable instanceof InterruptedIOException) {
+//
+//                                }
+//                                if (throwable instanceof MqttException) {
+//
+//                                }
+//                                else {
+//
+//                                }
+//
+//                                Log.d("MainController", "Procedemos a guardar la muestra...");
 
                             },
-                            () -> Log.d("MainController", "processSample request completed!")
+                            () -> Log.d("MainController", "The sample has been published (completed)")
                     );
 
         } catch (JsonProcessingException e) {
