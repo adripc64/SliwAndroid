@@ -7,5 +7,6 @@ public interface MainController extends Controller {
     void link();
     void unlink();
     void takeSample();
+    void takeValidSample(String location);
 
 }

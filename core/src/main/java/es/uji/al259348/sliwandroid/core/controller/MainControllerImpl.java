@@ -112,6 +112,18 @@ public class MainControllerImpl implements MainController {
                 .subscribe();
     }
 
+    @Override
+    public void takeValidSample(String location) {
+        Log.d("MainController", "It has been requested to take a valid sample.");
+        sampleService.take()
+                .doOnNext(sample -> {
+                    sample.setLocation(location);
+                    sample.setValid(true);
+                    onTakeSampleCompleted(sample);
+                })
+                .subscribe();
+    }
+
     private void onTakeSampleCompleted(Sample sample) {
         Log.d("MainController", "The sample has been taken.");
 
