@@ -129,15 +129,17 @@ public class MainControllerImpl implements MainController {
 
         sampleService.publish(sample)
                 .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
-                            Log.d("MainController", "The sample has been published (next)");
+                            Log.d("MainController", "La muestra ha sido clasificada: " + response);
+                            mainView.onSampleClassified(response);
                         },
                         throwable -> {
                             Log.d("MainController", "The sample couldn't be published.");
                             Log.d("MainController", "Storing the sample locally...");
                             sampleService.save(sample);
+                            mainView.onSampleSavedLocally();
                         },
                         () -> Log.d("MainController", "The sample has been published (completed)")
                 );

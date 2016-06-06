@@ -17,4 +17,6 @@ public interface MainView extends View {
     void isOk();
 
     void onTakeSampleCompleted();
+    void onSampleClassified(String location);
+    void onSampleSavedLocally();
 }

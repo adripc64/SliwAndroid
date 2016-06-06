@@ -181,6 +181,16 @@ public class MainActivity extends Activity implements
         controller.decideStep();
     }
 
+    @Override
+    public void onSampleClassified(String location) {
+        Toast.makeText(MainActivity.this, "Muestra clasificada: " + location, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSampleSavedLocally() {
+        Toast.makeText(MainActivity.this, "La muestra ha sido guardada localmente.", Toast.LENGTH_SHORT).show();
+    }
+
     public void btnInfoClickListener(View view) {
         DeviceService deviceService = new DeviceServiceImpl(this);
         String deviceId = deviceService.getId();
