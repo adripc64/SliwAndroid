@@ -39,6 +39,7 @@ public class MainActivity extends Activity implements
     private static final String STEP_CONFIG = "StepConfig";
     private static final String STEP_OK = "stepOk";
     private static final int REQUEST_CODE_CONFIG = 1;
+    private static final int REQUEST_CODE_FEEDBACK = 2;
 
     private MainController controller;
     private View fragmentContent;
@@ -84,6 +85,19 @@ public class MainActivity extends Activity implements
 
                 case RESULT_CANCELED:
                     Toast.makeText(MainActivity.this, "Configuración cancelada.", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+            controller.decideStep();
+        }
+        else if (requestCode == REQUEST_CODE_FEEDBACK) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    setFragment(LoadingFragment.newInstance("Tomando muestra..."));
+                    controller.takeValidSample(data.getStringExtra("location"));
+                    break;
+
+                case RESULT_CANCELED:
+                    Toast.makeText(MainActivity.this, "Se ha cancelado la validación de muestra.", Toast.LENGTH_SHORT).show();
                     break;
             }
             controller.decideStep();
@@ -173,6 +187,12 @@ public class MainActivity extends Activity implements
     public void takeSample() {
         setFragment(LoadingFragment.newInstance("Tomando muestra..."));
         controller.takeSample();
+    }
+
+    @Override
+    public void validateSample() {
+        Intent i = new Intent(MainActivity.this, FeedbackActivity.class);
+        startActivityForResult(i, REQUEST_CODE_FEEDBACK);
     }
 
     @Override

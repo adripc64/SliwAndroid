@@ -10,8 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import es.uji.al259348.sliwandroid.core.model.Location;
 import es.uji.al259348.sliwandroid.wear.R;
 
 /**
@@ -24,11 +27,9 @@ import es.uji.al259348.sliwandroid.wear.R;
  */
 public class FeedbackFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_LOCATIONS = "locations";
 
-    private String mParam1;
-    private String mParam2;
+    private ArrayList<String> locations;
 
     private Context context;
 
@@ -42,15 +43,15 @@ public class FeedbackFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param locations Lista de lugares
      * @return A new instance of fragment FeedbackFragment.
      */
-    public static FeedbackFragment newInstance(String param1, String param2) {
+    public static FeedbackFragment newInstance(List<Location> locations) {
         FeedbackFragment fragment = new FeedbackFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        ArrayList<String> locationStrings = new ArrayList<>();
+        for (Location location : locations) locationStrings.add(location.getName());
+        args.putStringArrayList(ARG_LOCATIONS, locationStrings);
         fragment.setArguments(args);
         return fragment;
     }
@@ -59,8 +60,7 @@ public class FeedbackFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            locations = getArguments().getStringArrayList(ARG_LOCATIONS);
         }
     }
 
@@ -69,11 +69,13 @@ public class FeedbackFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_feedback, container, false);
 
-        String[] items = { "a", "b", "c", "d" };
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, locations);
 
         ListView listView = (ListView) rootView.findViewById(R.id.listView);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            mListener.onLocationSelected(locations.get(position));
+        });
 
         return rootView;
     }
@@ -107,8 +109,6 @@ public class FeedbackFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-
-
-
+        void onLocationSelected(String location);
     }
 }
