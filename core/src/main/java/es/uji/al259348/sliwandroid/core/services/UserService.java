@@ -4,7 +4,7 @@ import es.uji.al259348.sliwandroid.core.model.Config;
 import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
 
-public interface UserService {
+public interface UserService extends Service {
 
     /**
      * Get the current linked user.
@@ -20,6 +20,13 @@ public interface UserService {
      * @return Returns true if the new value were successfully written.
      */
     boolean setCurrentLinkedUser(User user);
+
+    /**
+     * Get the current linked user.
+     *
+     * @return Returns the current linked user id or and empty string if there isn't.
+     */
+    String getCurrentLinkedUserId();
 
     Observable<User> getUserLinkedTo(String deviceId);
     Observable<Void> configureUser(User user, Config config);

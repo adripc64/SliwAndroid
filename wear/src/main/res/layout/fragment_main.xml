@@ -6,14 +6,6 @@
     android:orientation="vertical"
     tools:context="es.uji.al259348.sliwandroidwear.MainFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Todo listo!"
-        android:id="@+id/textView"
-        android:layout_gravity="center_horizontal" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,6 +18,13 @@
         android:layout_height="wrap_content"
         android:text="Tomar muestra"
         android:id="@+id/btnTakeSample"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Validar muestra"
+        android:id="@+id/btnValidateSample"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

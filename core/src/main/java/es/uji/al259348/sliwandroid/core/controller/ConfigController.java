@@ -1,9 +1,9 @@
 package es.uji.al259348.sliwandroid.core.controller;
 
-public interface ConfigController {
+public interface ConfigController extends Controller {
 
-    void onDestroy();
     void startConfig();
     void startStep();
+    void saveConfig();
 
 }

@@ -14,12 +14,13 @@ import es.uji.al259348.sliwandroid.core.model.User;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends AbstractService implements UserService {
 
     private static final String SHARED_PREFERENCES_NAME = "UserServiceSharedPreferences";
     private static final String SHARED_PREFERENCES_KEY_USER = "user";
 
-    private Context context;
+    private static final String MESSAGING_CONFIGURE_REQUEST_TOPIC = "users/%s/configure";
+    private static final String MESSAGING_REGISTER_RESPONSE_OK = "200 OK";
 
     private MessagingService messagingService;
 
@@ -27,21 +28,26 @@ public class UserServiceImpl implements UserService {
     private SharedPreferences sharedPreferences;
 
     public UserServiceImpl(Context context) {
-        this.context = context;
+        super(context);
         this.messagingService = new MessagingServiceImpl(context);
         this.objectMapper = new ObjectMapper();
         this.sharedPreferences = getSharedPreferences();
     }
 
     public UserServiceImpl(Context context, MessagingService messagingService) {
-        this.context = context;
+        super(context);
         this.messagingService = messagingService;
         this.objectMapper = new ObjectMapper();
         this.sharedPreferences = getSharedPreferences();
     }
 
     private SharedPreferences getSharedPreferences() {
-        return context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        return getContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void onDestroy() {
+
     }
 
     @Override
@@ -82,9 +88,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String getCurrentLinkedUserId() {
+        User user = getCurrentLinkedUser();
+        return (user == null) ? "" : user.getId();
+    }
+
+    @Override
     public Observable<User> getUserLinkedTo(final String deviceId) {
         return Observable.create(subscriber -> {
-            String topic = "user/linkedTo/" + deviceId;
+            String topic = "devices/" + deviceId + "/user";
             String msg = (new Date()).toString();
 
             messagingService.request(topic, msg)
@@ -104,18 +116,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public Observable<Void> configureUser(User user, Config config) {
         return Observable.create(subscriber -> {
+
             try {
-                String topic = "user/" + user.getId() + "/configurar";
                 String msg = objectMapper.writeValueAsString(config.getSamples());
 
-                messagingService.publish(topic, msg)
+                String topic = String.format(MESSAGING_CONFIGURE_REQUEST_TOPIC, user.getId());
+                messagingService.request(topic, msg)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(Schedulers.newThread())
-                        .subscribe(subscriber);
+                        .subscribe(response -> {
+                            if (response.equals(MESSAGING_REGISTER_RESPONSE_OK)) {
+                                subscriber.onCompleted();
+                            } else {
+                                subscriber.onError(new Throwable(response));
+                            }
+                        }, subscriber::onError);
 
             } catch (JsonProcessingException e) {
-                subscriber.onError(e);
+                e.printStackTrace();
             }
+
         });
     }
 

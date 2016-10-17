@@ -2,40 +2,33 @@ package es.uji.al259348.sliwandroid.wear.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Button;
+import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import es.uji.al259348.sliwandroid.core.model.Location;
 import es.uji.al259348.sliwandroid.wear.R;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FeedbackFragment.OnFragmentInteractionListener} interface
+ * {@link InfoFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FeedbackFragment#newInstance} factory method to
+ * Use the {@link InfoFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FeedbackFragment extends Fragment {
+public class InfoFragment extends Fragment {
 
-    private static final String ARG_LOCATIONS = "locations";
-
-    private ArrayList<String> locations;
-
-    private Context context;
+    private static final String ARG_DEVICE_ID = "ARG_DEVICE_ID";
+    private static final String ARG_USER_ID = "ARG_USER_ID";
 
     private OnFragmentInteractionListener mListener;
+    private String deviceId;
+    private String userId;
 
-    public FeedbackFragment() {
+    public InfoFragment() {
         // Required empty public constructor
     }
 
@@ -43,15 +36,13 @@ public class FeedbackFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param locations Lista de lugares
-     * @return A new instance of fragment FeedbackFragment.
+     * @return A new instance of fragment MainFragment.
      */
-    public static FeedbackFragment newInstance(List<Location> locations) {
-        FeedbackFragment fragment = new FeedbackFragment();
+    public static InfoFragment newInstance(String deviceId, String userId) {
+        InfoFragment fragment = new InfoFragment();
         Bundle args = new Bundle();
-        ArrayList<String> locationStrings = new ArrayList<>();
-        for (Location location : locations) locationStrings.add(location.getName());
-        args.putStringArrayList(ARG_LOCATIONS, locationStrings);
+        args.putString(ARG_DEVICE_ID, deviceId);
+        args.putString(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,22 +51,23 @@ public class FeedbackFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            locations = getArguments().getStringArrayList(ARG_LOCATIONS);
+            deviceId = getArguments().getString(ARG_DEVICE_ID);
+            userId = getArguments().getString(ARG_USER_ID);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_feedback, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_info, container, false);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, locations);
+        TextView tvDeviceId = (TextView) rootView.findViewById(R.id.deviceId);
+        tvDeviceId.setText(deviceId);
+        TextView tvUserId = (TextView) rootView.findViewById(R.id.userId);
+        tvUserId.setText(userId);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listView);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            mListener.onLocationSelected(locations.get(position));
-        });
+        Button btnClose = (Button) rootView.findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(v -> mListener.closeInfo());
 
         return rootView;
     }
@@ -85,7 +77,6 @@ public class FeedbackFragment extends Fragment {
         super.onAttach(activity);
         if (activity instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) activity;
-            context = activity;
         } else {
             throw new RuntimeException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -103,12 +94,12 @@ public class FeedbackFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        void onLocationSelected(String location);
+        void closeInfo();
     }
 }

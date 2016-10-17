@@ -2,7 +2,6 @@ package es.uji.al259348.sliwandroid.core.controller;
 
 import android.content.Context;
 
-import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
 
@@ -64,8 +63,17 @@ public class ConfigControllerImpl implements ConfigController {
         performScan();
     }
 
+    @Override
+    public void saveConfig() {
+        userService.configureUser(user, config)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aVoid -> {
+                }, this::handleError, this::onConfigFinished);
+    }
+
     private void performScan() {
-        wifiService.performScan()
+        wifiService.takeSample()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onScanPerformed);
@@ -96,11 +104,7 @@ public class ConfigControllerImpl implements ConfigController {
             currentStep = configStepsIter.next();
             configView.onNextStep(currentStep.getLocation().getConfigMsg());
         } else {
-            userService.configureUser(user, config)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(aVoid -> {
-                    }, Throwable::printStackTrace, this::onConfigFinished);
+            configView.onAllStepsFinished();
         }
     }
 
@@ -108,6 +112,10 @@ public class ConfigControllerImpl implements ConfigController {
         user.setConfigured(true);
         userService.setCurrentLinkedUser(user);
         configView.onConfigFinished();
+    }
+
+    private void handleError(Throwable throwable) {
+        configView.onError(throwable);
     }
 
 }

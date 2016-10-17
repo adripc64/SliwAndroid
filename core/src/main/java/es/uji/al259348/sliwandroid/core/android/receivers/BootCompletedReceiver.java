@@ -1,4 +1,4 @@
-package es.uji.al259348.sliwandroid.core.receivers;
+package es.uji.al259348.sliwandroid.core.android.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
