@@ -95,8 +95,10 @@ public class ConfigActivity extends Activity implements
     @Override
     public void onAllStepsFinished() {
         step = STEP_CONFIRM_SAVE_CONFIG;
-        String msg = "Configuración terminada.";
-        String btnText = "Guardar";
+        //String msg = "Configuración terminada.";
+        String msg = getString(R.string.configFinished);
+//        String btnText = "Guardar";
+        String btnText = getString(R.string.save);
         setFragment(ConfirmFragment.newInstance(msg, btnText));
     }
 
@@ -121,7 +123,8 @@ public class ConfigActivity extends Activity implements
                 break;
 
             case STEP_CONFIRM_SAVE_CONFIG:
-                setFragment(LoadingFragment.newInstance("Guardando configuración..."));
+//                setFragment(LoadingFragment.newInstance("Guardando configuración..."));
+                setFragment(LoadingFragment.newInstance(getString(R.string.storingConfig)));
                 configController.saveConfig();
                 break;
         }

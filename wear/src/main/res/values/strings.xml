@@ -1,15 +1,34 @@
 <resources>
     <string name="app_name">SliwAndroid</string>
 
-    <string name="linkUser">Vincular usuario</string>
+    <!--<string name="linkUser">Vincular usuario</string>-->
+    <string name="linkUser">Link user</string>
     <string name="ok">OK</string>
 
-    <string name="configStartText">Pulsa OK para configurar\n(5 minutos)</string>
+    <!--<string name="configStartText">Pulsa OK para configurar\n(5 minutos)</string>-->
+    <string name="configStartText">Press OK for starting configuration (5 minutes)</string>
     <string name="configStartBtnText">OK</string>
     <string name="configStartStepBtnText">OK</string>
 
-    <string name="progressBarMsg">Espera sin moverte</string>
+    <!--<string name="progressBarMsg">Espera sin moverte</string>-->
+    <string name="progressBarMsg">Please, wait and do not move</string>
     <string name="title_activity_feedback">SliwAndroid</string>
+    <string name="configFinished">Configuration finished</string>
+    <string name="save">Save</string>
+    <string name="storingConfig">Storing configuration...</string>
+    <string name="configCanceled">Configuration canceled</string>
+    <string name="sampling">Sampling...</string>
+    <string name="sampled">Sampled</string>
+    <string name="validationCanceled">Sampling canceled</string>
+    <string name="sampleClassified">Sample classified</string>
+    <string name="sampleLocal">Sample stored locally</string>
+    <string name="registrationNeeded">Device registration needed</string>
+    <string name="registeringDevice">Registering device...</string>
+    <string name="registrationOk">Device successfully registered</string>
+    <string name="linkNeeded">Device link needed</string>
+    <string name="linkOk">Device successfully linked</string>
+    <string name="linkingDevice">Linking device...</string>
+    <string name="configNeeded">Device configuration needed</string>
 
     <string-array name="numbers">
         <item>0</item>

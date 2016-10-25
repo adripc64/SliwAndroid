@@ -80,11 +80,13 @@ public class MainActivity extends Activity implements
         if (requestCode == REQUEST_CODE_CONFIG) {
             switch (resultCode) {
                 case RESULT_OK:
-                    Toast.makeText(MainActivity.this, "Configuración terminada.", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "Configuración terminada.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.configFinished), Toast.LENGTH_SHORT).show();
                     break;
 
                 case RESULT_CANCELED:
-                    Toast.makeText(MainActivity.this, "Configuración cancelada.", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "Configuración cancelada.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.configCanceled), Toast.LENGTH_SHORT).show();
                     break;
             }
             controller.decideStep();
@@ -92,12 +94,14 @@ public class MainActivity extends Activity implements
         else if (requestCode == REQUEST_CODE_FEEDBACK) {
             switch (resultCode) {
                 case RESULT_OK:
-                    setFragment(LoadingFragment.newInstance("Tomando muestra..."));
+//                    setFragment(LoadingFragment.newInstance("Tomando muestra..."));
+                    setFragment(LoadingFragment.newInstance(getString(R.string.sampling)));
                     controller.takeValidSample(data.getStringExtra("location"));
                     break;
 
                 case RESULT_CANCELED:
-                    Toast.makeText(MainActivity.this, "Se ha cancelado la validación de muestra.", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "Se ha cancelado la validación de muestra.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.validationCanceled), Toast.LENGTH_SHORT).show();
                     break;
             }
             controller.decideStep();
@@ -124,31 +128,36 @@ public class MainActivity extends Activity implements
     @Override
     public void hasToRegisterDevice() {
         step = STEP_REGISTER_DEVICE;
-        setFragment(ConfirmFragment.newInstance("Es necesario registrar el dispositivo.", "Ok"));
+//        setFragment(ConfirmFragment.newInstance("Es necesario registrar el dispositivo.", "Ok"));
+        setFragment(ConfirmFragment.newInstance(getString(R.string.registrationNeeded), getString(R.string.ok)));
     }
 
     @Override
     public void onDeviceRegistered(Device device) {
-        Toast.makeText(MainActivity.this, "El dispositivo ha sido registrado.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "El dispositivo ha sido registrado.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, getString(R.string.registrationOk), Toast.LENGTH_SHORT).show();
         controller.decideStep();
     }
 
     @Override
     public void hasToLink() {
         step = STEP_LINK;
-        setFragment(ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
+//        setFragment(ConfirmFragment.newInstance("Es necesario vincular el dispositivo.", "Ok"));
+        setFragment(ConfirmFragment.newInstance(getString(R.string.linkNeeded), getString(R.string.ok)));
     }
 
     @Override
     public void onUserLinked(User user) {
-        Toast.makeText(MainActivity.this, "Usuario vinculado: " + user.getName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "Usuario vinculado: " + user.getName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, getString(R.string.linkOk) + user.getName(), Toast.LENGTH_SHORT).show();
         controller.decideStep();
     }
 
     @Override
     public void hasToConfigure() {
         step = STEP_CONFIG;
-        setFragment(ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
+//        setFragment(ConfirmFragment.newInstance("Es necesario configurar el dispositivo.", "Ok"));
+        setFragment(ConfirmFragment.newInstance(getString(R.string.configNeeded), getString(R.string.configNeeded)));
     }
 
     @Override
@@ -161,12 +170,14 @@ public class MainActivity extends Activity implements
     public void onConfirm() {
         switch (step) {
             case STEP_REGISTER_DEVICE:
-                setFragment(LoadingFragment.newInstance("Registrando dispositivo..."));
+//                setFragment(LoadingFragment.newInstance("Registrando dispositivo..."));
+                setFragment(LoadingFragment.newInstance(getString(R.string.registeringDevice)));
                 controller.registerDevice();
                 break;
 
             case STEP_LINK:
-                setFragment(LoadingFragment.newInstance("Vinculando..."));
+//                setFragment(LoadingFragment.newInstance("Vinculando..."));
+                setFragment(LoadingFragment.newInstance(getString(R.string.linkingDevice)));
                 controller.link();
                 break;
 
@@ -185,7 +196,8 @@ public class MainActivity extends Activity implements
 
     @Override
     public void takeSample() {
-        setFragment(LoadingFragment.newInstance("Tomando muestra..."));
+//        setFragment(LoadingFragment.newInstance("Tomando muestra..."));
+        setFragment(LoadingFragment.newInstance(R.string.sampling));
         controller.takeSample();
     }
 
@@ -197,18 +209,21 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onTakeSampleCompleted() {
-        Toast.makeText(MainActivity.this, "Muestra tomada.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "Muestra tomada.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, getString(R.string.sampled), Toast.LENGTH_SHORT).show();
         controller.decideStep();
     }
 
     @Override
     public void onSampleClassified(String location) {
-        Toast.makeText(MainActivity.this, "Muestra clasificada: " + location, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "Muestra clasificada: " + location, Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, getString(R.string.sampleClassified) + location, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onSampleSavedLocally() {
-        Toast.makeText(MainActivity.this, "La muestra ha sido guardada localmente.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "La muestra ha sido guardada localmente.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, getString(R.string.sampleLocal), Toast.LENGTH_SHORT).show();
     }
 
     public void btnInfoClickListener(View view) {
